@@ -80,7 +80,7 @@ var T_WATER=0,T_GRASS=1,T_FOREST=2,T_MOUNT=3,T_SAND=4,T_SNOW=5,T_ROAD=6,T_LAVA=7
     T_HILL=8,T_TOWN=9,T_CAVE=10,T_BRIDGE=11,T_FLOOR=12,T_WALL=13,T_DOOR=14,T_INN=15,
     T_SHOP=16,T_TREE=17,T_ROOF=18,T_EXIT=19,T_CHEST=20,T_STAIR=21,T_PATH=22,T_THRONE=23,
     T_ICE=24,T_DUNE=25,T_FLOWER=26,T_FENCE=27,T_SIGN=28,T_WELL=29,T_FIR=30,T_CRYPT=31,
-    T_COFFIN=32,T_ALTAR=33;
+    T_COFFIN=32,T_ALTAR=33,T_BURNT=34,T_BITTER=35;
 
 function noise(g,n,cols,seed){
   var r = new LCG(seed);
@@ -130,12 +130,28 @@ function buildTiles(){
     px(x,4,12,8,2,'#3a2a1c'); });
   T(T_ALTAR,function(x){ px(x,0,0,TS,TS,'#4a4038'); px(x,2,6,12,8,'#8a867d');
     px(x,3,4,10,3,'#a8a49b'); px(x,6,1,4,4,'#e8e4d8'); px(x,7,0,2,6,'#e8e4d8'); });
+  T(T_BURNT,function(x){ px(x,0,0,TS,TS,'#3a332c'); noise(x,26,['#4a4038','#241f1a'],61);
+    px(x,3,6,2,8,'#1a1614'); px(x,9,4,2,10,'#1a1614'); px(x,6,9,2,5,'#241f1a');
+    px(x,2,14,12,2,'#2a241f'); px(x,11,7,1,3,'#6b3a1a'); });
+  T(T_BITTER,function(x){ px(x,0,0,TS,TS,'#3f4a24'); noise(x,20,['#55632f','#2a3218'],67);
+    px(x,2,4,5,1,'#8aa04a'); px(x,9,10,4,1,'#8aa04a'); px(x,6,7,3,2,'#1f2612'); });
   T(T_WELL,function(x){ px(x,0,0,TS,TS,'#4c9a3a'); px(x,3,6,10,8,'#8a867d'); px(x,5,8,6,5,'#1d2f4a'); px(x,2,4,12,2,'#6e6a63'); });
+}
+var TILE_ALT = {};
+function buildAltTiles(){
+  var g = mk(TS,TS);
+  px(g.x,0,0,TS,TS,'#7a1a1a'); noise(g.x,18,['#9c2323','#5c1212'],71);
+  px(g.x,2,4,5,1,'#c85a4a'); px(g.x,9,10,4,1,'#c85a4a');
+  TILE_ALT.blood = g.c;
+  var b = mk(TS,TS);
+  px(b.x,0,0,TS,TS,'#4a2a1a'); noise(b.x,20,['#5c3520','#2f1a10'],73);
+  px(b.x,0,2,TS,12,'#6b4526'); for(var i=0;i<TS;i+=4) px(b.x,i,2,1,12,'#4a2f18');
+  TILE_ALT.bridgeBurnt = b.c;
 }
 var BLOCKED = {};
 BLOCKED[T_WATER]=1; BLOCKED[T_MOUNT]=1; BLOCKED[T_LAVA]=1; BLOCKED[T_WALL]=1;
 BLOCKED[T_TREE]=1; BLOCKED[T_ROOF]=1; BLOCKED[T_FENCE]=1; BLOCKED[T_SIGN]=1; BLOCKED[T_WELL]=1;
-BLOCKED[T_COFFIN]=1; BLOCKED[T_ALTAR]=1;
+BLOCKED[T_COFFIN]=1; BLOCKED[T_ALTAR]=1; BLOCKED[T_BITTER]=1;
 
 /* ============================================================
    CHARACTER + ENEMY SPRITE PAINTING
@@ -372,23 +388,23 @@ var SKILLS = {
 };
 
 var HEROES = [
-  {id:'kael', name:'Kael', title:'Guard of Emberfall', wep:'sword',
+  {id:'gideon', name:'Gideon', title:'Guard of the Lampstand', wep:'sword',
    look:{skin:'#e7b98d',hair:'#3b5f9c',body:'#dfe4ec',trim:'#4b6f9c',boot:'#39424f',wep:'sword'},
    base:{hp:120,mp:20,atk:16,def:14,mag:6,spd:10}, grow:{hp:14,mp:3,atk:3,def:3,mag:1,spd:1.3},
    learn:{1:['slash'],4:['guardup'],8:['provoke'],11:['windmill'],13:['sweep'],20:['focus']}},
-  {id:'mira', name:'Mira', title:'Ashen Scholar', wep:'staff',
+  {id:'miriam', name:'Miriam', title:'Reader of the Seals', wep:'staff',
    look:{skin:'#f0cfae',hair:'#2b2530',body:'#2f2a3a',trim:'#7c4fa8',boot:'#221d29',wep:'staff'},
    base:{hp:78,mp:52,atk:8,def:8,mag:19,spd:11}, grow:{hp:8,mp:7,atk:1.2,def:1.6,mag:3.6,spd:1.4},
    learn:{1:['fire'],3:['blizzard'],6:['thunder'],10:['cyclone'],11:['drain'],16:['quake'],20:['starfall'],22:['firaga']}},
-  {id:'rook', name:'Rook', title:'Greenhollow Ranger', wep:'bow',
+  {id:'jonathan', name:'Jonathan', title:'The Bow That Turns Not Back', wep:'bow',
    look:{skin:'#d9a578',hair:'#4a3a24',body:'#3f5d3a',trim:'#8a6a3a',boot:'#4a3626',wep:'bow'},
    base:{hp:96,mp:28,atk:14,def:10,mag:9,spd:16}, grow:{hp:10,mp:3.4,atk:2.6,def:2,mag:1.6,spd:2.2},
    learn:{1:['pierce'],5:['cripple'],9:['venom'],13:['windmill'],15:['volley']}},
-  {id:'orin', name:'Orin', title:'Wandering Monk', wep:'fist',
+  {id:'simeon', name:'Simeon', title:'Who Waited in the Temple', wep:'fist',
    look:{skin:'#c98a5c',hair:'#7d2f2a',body:'#a83a30',trim:'#e6c463',boot:'#5c4630',wep:'fist'},
    base:{hp:108,mp:36,atk:15,def:12,mag:14,spd:13}, grow:{hp:12,mp:4.4,atk:2.5,def:2.3,mag:2.6,spd:1.7},
    learn:{1:['chi'],4:['flurry'],7:['cleanse'],10:['fangrush'],12:['cureall'],18:['holy'],24:['revive']}},
-  {id:'abel', name:'Abel', title:'Ember Ascendant', wep:'fist',
+  {id:'abel', name:'Abel', title:'Whose Offering Was Regarded', wep:'fist',
    look:{skin:'#e7b98d',hair:'#231c1a',body:'#d8622a',trim:'#2f4b8a',boot:'#3a2a1c',wep:'fist'},
    base:{hp:104,mp:44,atk:13,def:11,mag:13,spd:12}, grow:{hp:12,mp:6,atk:2.2,def:2,mag:2.4,spd:1.6},
    learn:{1:['kibolt'],3:['rushcombo'],7:['secondwind'],11:['skyfist'],17:['aetherbeam'],25:['novaburst'],34:['skyfall']},
@@ -400,7 +416,7 @@ var HEROES = [
      {name:'Violet Nova', lv:28, mul:5.6, cost:48, drain:12, hair:'#e0b0ff', pal:'violet'},
      {name:'Crimson Eclipse', lv:38, mul:6.9, cost:66, drain:18, hair:'#ff5a5a', pal:'crimson'}
    ]},
-  {id:'vex', name:'Vex', title:'Dustroad Gunhand', wep:'gun',
+  {id:'jehu', name:'Jehu', title:'Who Drives Furiously', wep:'gun',
    look:{skin:'#e0b184',hair:'#2a2320',body:'#b33a4a',trim:'#2d2a33',boot:'#2a2a30',wep:'gun'},
    base:{hp:92,mp:26,atk:18,def:9,mag:8,spd:14}, grow:{hp:9,mp:3,atk:3.2,def:1.8,mag:1.4,spd:2},
    learn:{1:['quickdraw'],6:['dynamite'],10:['fanfire'],17:['focus']}}
@@ -424,21 +440,21 @@ var ITEMS = {
 
 var GEAR = {
   /* weapons */
-  w_iron:   {name:'Iron Sword', slot:'wep', atk:6, price:200, who:['kael'], desc:'Reliable, if plain.'},
-  w_knight: {name:'Knightblade', slot:'wep', atk:16, price:900, who:['kael'], desc:'Emberfall steel.'},
-  w_dawn:   {name:'Dawnbreaker', slot:'wep', atk:30, price:2600, who:['kael'], desc:'It hums at sunrise.'},
-  w_oak:    {name:'Oak Staff', slot:'wep', atk:2, mag:7, price:220, who:['mira'], desc:'Focuses raw aether.'},
-  w_rune:   {name:'Rune Staff', slot:'wep', atk:3, mag:17, price:1000, who:['mira'], desc:'Carved with old script.'},
-  w_star:   {name:'Starcaller', slot:'wep', atk:4, mag:31, price:2800, who:['mira'], desc:'Pulls light from far off.'},
-  w_short:  {name:'Short Bow', slot:'wep', atk:5, spd:2, price:210, who:['rook'], desc:'Quick to draw.'},
-  w_yew:    {name:'Yew Longbow', slot:'wep', atk:14, spd:3, price:950, who:['rook'], desc:'Punches through mail.'},
-  w_wind:   {name:'Windsinger', slot:'wep', atk:27, spd:5, price:2700, who:['rook'], desc:'The arrow finds its own way.'},
-  w_wrap:   {name:'Hand Wraps', slot:'wep', atk:5, mag:3, price:200, who:['orin'], desc:'Simple linen, well tied.'},
-  w_iron_f: {name:'Iron Knuckles', slot:'wep', atk:15, mag:6, price:960, who:['orin'], desc:'Weighted for the strike.'},
-  w_lotus:  {name:'Lotus Gauntlets', slot:'wep', atk:28, mag:14, price:2750, who:['orin'], desc:'Calm hands, hard palms.'},
-  w_six:    {name:'Six-Shooter', slot:'wep', atk:8, price:230, who:['vex'], desc:'Worn grip, true barrel.'},
-  w_long:   {name:'Longshot', slot:'wep', atk:18, price:980, who:['vex'], desc:'Kicks like a mule.'},
-  w_ash:    {name:'Ashmaker', slot:'wep', atk:33, price:2900, who:['vex'], desc:'Leaves nothing standing.'},
+  w_iron:   {name:'Iron Sword', slot:'wep', atk:6, price:200, who:['gideon'], desc:'Reliable, if plain.'},
+  w_knight: {name:'Knightblade', slot:'wep', atk:16, price:900, who:['gideon'], desc:'Ephesus steel.'},
+  w_dawn:   {name:'Dawnbreaker', slot:'wep', atk:30, price:2600, who:['gideon'], desc:'It hums at sunrise.'},
+  w_oak:    {name:'Oak Staff', slot:'wep', atk:2, mag:7, price:220, who:['miriam'], desc:'Focuses raw aether.'},
+  w_rune:   {name:'Rune Staff', slot:'wep', atk:3, mag:17, price:1000, who:['miriam'], desc:'Carved with old script.'},
+  w_star:   {name:'Starcaller', slot:'wep', atk:4, mag:31, price:2800, who:['miriam'], desc:'Pulls light from far off.'},
+  w_short:  {name:'Short Bow', slot:'wep', atk:5, spd:2, price:210, who:['jonathan'], desc:'Quick to draw.'},
+  w_yew:    {name:'Yew Longbow', slot:'wep', atk:14, spd:3, price:950, who:['jonathan'], desc:'Punches through mail.'},
+  w_wind:   {name:'Windsinger', slot:'wep', atk:27, spd:5, price:2700, who:['jonathan'], desc:'The arrow finds its own way.'},
+  w_wrap:   {name:'Hand Wraps', slot:'wep', atk:5, mag:3, price:200, who:['simeon'], desc:'Simple linen, well tied.'},
+  w_iron_f: {name:'Iron Knuckles', slot:'wep', atk:15, mag:6, price:960, who:['simeon'], desc:'Weighted for the strike.'},
+  w_lotus:  {name:'Lotus Gauntlets', slot:'wep', atk:28, mag:14, price:2750, who:['simeon'], desc:'Calm hands, hard palms.'},
+  w_six:    {name:'Six-Shooter', slot:'wep', atk:8, price:230, who:['jehu'], desc:'Worn grip, true barrel.'},
+  w_long:   {name:'Longshot', slot:'wep', atk:18, price:980, who:['jehu'], desc:'Kicks like a mule.'},
+  w_ash:    {name:'Ashmaker', slot:'wep', atk:33, price:2900, who:['jehu'], desc:'Leaves nothing standing.'},
   /* armor - shared */
   a_leather:{name:'Leather Vest', slot:'arm', def:6, price:180, desc:'Better than a shirt.'},
   a_chain:  {name:'Chain Shirt', slot:'arm', def:14, price:700, desc:'Rings on quilted cloth.'},
@@ -451,6 +467,13 @@ var GEAR = {
   t_amul:   {name:'Aether Amulet', slot:'acc', mag:9, price:600, desc:'Hums near old ruins.'},
   t_charm:  {name:'Iron Charm', slot:'acc', hp:60, price:700, desc:'Steadier heart, tougher hide.'},
   t_rings:  {name:'Richmodis Rings', slot:'acc', def:9, hp:90, price:0, desc:'Buried twice, worn once. They were never the sexton to keep.'},
+  t_treelife:{name:'Leaf of the Tree of Life', slot:'acc', hp:150, def:6, price:0, desc:'Twelve fruits, and leaves for the healing of the nations.'},
+  t_crownlife:{name:'Crown of Life', slot:'acc', hp:220, spd:6, price:0, desc:'The second death has no power over the one who wears it.'},
+  t_whitestone:{name:'White Stone', slot:'acc', mag:16, def:8, price:0, desc:'A new name is cut in it that nobody else can read.'},
+  w_rodiron:{name:'Rod of Iron', slot:'wep', atk:34, mag:12, price:0, desc:'It rules the nations and breaks pots. Given with the morning star.'},
+  a_whitegarment:{name:'White Garment', slot:'arm', def:30, mag:14, price:0, desc:'Washed, and kept clean. The name stays in the book.'},
+  t_pillar:{name:'Pillar Mark', slot:'acc', def:16, hp:120, price:0, desc:'A pillar in the temple, and it never goes out again.'},
+  t_throne:{name:'Share of the Throne', slot:'acc', atk:14, mag:18, spd:8, price:0, desc:'A seat beside the one who conquered first.'},
   t_hazel:  {name:'Hazel Twig', slot:'acc', mag:14, spd:4, price:0, desc:'Cut on the road to the crag. It remembers splitting rock.'}
 };
 
@@ -513,7 +536,7 @@ var BESTIARY = {};
   E('b_wyrm','Sand Wyrm King','dragon','#d8b45a','#8a6a2a',1150,54,32,26,17,980,1400,{boss:true,weak:['ice'],skills:['quake','sweep']}),
   E('b_warden','Ice Warden','golem','#bfe4f5','#6f9fc0',1500,60,40,34,15,1400,1900,{boss:true,weak:['fire'],resist:['ice'],skills:['blizzard','sweep']}),
   E('b_colossus','Magma Colossus','golem','#d64a1a','#7a2410',2100,72,46,30,13,2100,2600,{boss:true,weak:['ice'],resist:['fire'],skills:['firaga','quake']}),
-  E('b_dragon','Vaeloth, the Aetherwyrm','dragon','#6a4aa8','#33245c',3600,88,52,52,22,9999,9999,{boss:true,resist:['dark','fire'],weak:['holy'],skills:['firaga','quake','drain','holy']}),
+  E('b_dragon','The Great Red Dragon','dragon','#c22a2a','#5c1010',9600,116,58,64,26,9999,9999,{boss:true,resist:['dark','fire'],weak:['holy'],skills:['firaga','quake','drain','starfall','cyclone']}),
   E('sealspider','Stopper Spider','insect','#2a2430','#12101a',120,27,14,10,19,52,44,{weak:['fire'],skills:['venom']}),
   E('mantlekin','Scarlet Kin','biped','#b02a3a','#5c1018',160,32,16,20,16,72,66,{resist:['dark'],weak:['holy'],skills:['fire']}),
   E('pestrat','Pest Rat','beast','#8a8378','#4f4a42',70,20,8,0,18,26,20,{skills:['venom']}),
@@ -543,6 +566,32 @@ var BESTIARY = {};
   E('hellhound','Cinder Hound','beast','#c9401a','#7a2410',150,34,16,10,20,80,72,{resist:['fire'],weak:['ice'],skills:['fire']}),
   E('pitfiend','Pit Fiend','demon','#a83a5a','#5c1c32',188,38,22,26,17,102,96,{resist:['fire','dark'],weak:['holy'],skills:['firaga','drain']}),
   E('ashhorror','Ash Horror','horror','#8a6a5a','#4a3428',196,36,20,30,12,108,100,{resist:['fire','dark'],weak:['holy','ice'],skills:['drain','quake']}),
+  /* --- trials of the seven lampstands --- */
+  E('b_nicolaitan','The Nicolaitan Teacher','biped','#8a6ad6','#42306b',520,30,18,26,16,300,420,{boss:true,weak:['holy'],skills:['drain','provoke']}),
+  E('b_tendays','The Ten Days','horror','#6a6a7a','#32323f',9000,30,26,24,14,420,500,{boss:true,resist:['phys','dark'],skills:['drain','cripple','quake']}),
+  E('b_balaam','Balaam of the Stumbling Block','biped','#b08a3a','#6b501c',900,40,24,28,17,620,760,{boss:true,weak:['holy'],skills:['quake','venom','focus']}),
+  E('b_jezebel','Jezebel of Thyatira','demon','#c2407a','#6b1c40',1500,52,28,44,20,1100,1400,{boss:true,resist:['dark','fire'],weak:['holy'],skills:['firaga','drain','cripple']}),
+  E('b_sleepers','The Sleepers of Sardis','undead','#c8c4b4','#6f6a5c',1800,56,34,26,12,1300,1500,{boss:true,weak:['holy'],resist:['dark'],skills:['sweep','drain']}),
+  E('b_liars','The Synagogue of the Liar','biped','#5a7a8a','#2c3f4a',2100,58,34,40,22,1500,1700,{boss:true,weak:['holy'],skills:['cyclone','provoke','drain']}),
+  E('b_lukewarm','The Lukewarm Thing','jelly','#b8a87a','#6b6248',2400,60,30,34,10,1800,2000,{boss:true,resist:['fire','ice'],weak:['holy'],skills:['drain','quake']}),
+  /* --- the four riders --- */
+  E('b_white','The Rider with the Bow','beast','#f2efe6','#b8b2a4',2600,62,32,30,26,2000,2200,{boss:true,weak:['holy'],skills:['volley','pierce','focus']}),
+  E('b_red','The Rider with the Sword','beast','#d6301f','#7a1810',3000,72,34,20,24,2400,2600,{boss:true,resist:['fire'],skills:['sweep','slash','focus']}),
+  E('b_black','The Rider with the Balance','beast','#2f2b33','#15131a',3200,66,38,44,22,2700,3000,{boss:true,weak:['holy'],skills:['drain','cripple','quake']}),
+  E('b_pale','Death, and Hades Behind Him','beast','#9fb0a4','#4a5850',4200,80,42,50,25,3600,3800,{boss:true,resist:['dark'],weak:['holy'],skills:['drain','firaga','quake','cripple']}),
+  E('b_altar','The Souls Under the Altar','wisp','#e8e4d8','#a89c84',3600,70,36,56,20,3200,3400,{boss:true,resist:['phys'],skills:['holy','drain','cyclone']}),
+  E('b_sixth','The Sun Turned Black','golem','#3a3038','#16121a',4600,84,46,48,18,4000,4200,{boss:true,resist:['dark'],weak:['holy'],skills:['quake','starfall','firaga']}),
+  /* --- trumpets and the abyss --- */
+  E('locust','Abyss Locust','insect','#c8a83a','#6b5518',210,42,18,12,26,120,90,{weak:['holy'],skills:['venom']}),
+  E('wormstar','Wormwood Ember','wisp','#a8d63a','#4f6b18',240,38,16,40,22,140,110,{weak:['holy'],skills:['venom','drain']}),
+  E('cavalry','Rider of the Euphrates','beast','#c2402a','#5c1810',320,52,24,32,24,180,160,{resist:['fire'],skills:['fire','fangrush']}),
+  E('frogspirit','Foul Spirit like a Frog','blob','#6aa83a','#33591c',260,44,20,34,20,150,130,{weak:['holy'],skills:['cyclone','drain']}),
+  E('marked','One Who Took the Mark','biped','#8a6a5a','#4a3428',300,50,26,20,20,170,150,{weak:['holy'],skills:['slash']}),
+  E('b_abaddon','Abaddon, King of the Abyss','insect','#d6b83a','#6b5518',5200,88,44,52,28,4600,4800,{boss:true,weak:['holy'],skills:['venom','cyclone','quake','firaga']}),
+  /* --- the dragon and its two beasts --- */
+  E('b_seabeast','The Beast from the Sea','dragon','#8a2f3a','#3f0f18',6400,96,52,54,24,6000,6500,{boss:true,resist:['dark','fire'],weak:['holy'],skills:['firaga','sweep','quake','focus']}),
+  E('b_falseprophet','The Beast from the Earth','demon','#c8a84a','#6b5518',5600,88,46,66,26,5400,5800,{boss:true,resist:['fire','dark'],weak:['holy'],skills:['firaga','drain','starfall','cripple']}),
+  E('b_babylon','Babylon on the Scarlet Beast','demon','#c2306a','#5c1030',7200,100,50,70,25,7000,9000,{boss:true,resist:['dark','fire'],weak:['holy'],skills:['firaga','drain','starfall','cyclone']}),
   E('b_mantle','The Scarlet Mantle','biped','#c81f32','#4a0a12',2200,66,38,58,24,2400,3000,{boss:true,resist:['dark','fire'],weak:['holy'],skills:['firaga','drain','quake','focus']}),
   E('b_sexton','What the Sexton Became','undead','#d8d2c4','#6a6254',900,48,26,30,20,900,1200,{boss:true,weak:['holy'],resist:['dark'],skills:['drain','cripple']})
 ].forEach(function(e){ BESTIARY[e.id] = e; });
@@ -555,7 +604,8 @@ var ZONES = {
   snow:    ['imp','islime','swolf','frostbat','yeti','wisp','icejelly','snowowl','frostcrab','deepgazer'],
   volcano: ['lslime','salaman','magma','ashkn','drake','hellhound','pitfiend','ashhorror'],
   crypt:   ['pestrat','shroud','greylung','bat','bonek','bellringer','lurker','deepgazer'],
-  firwood: ['sealspider','mantlekin','spider','wolf','vine','bat','gazer','owlbeast']
+  firwood: ['sealspider','mantlekin','spider','wolf','vine','bat','gazer','owlbeast'],
+  abyss:   ['locust','wormstar','cavalry','frogspirit','marked','lurker','pitfiend','ashhorror']
 };
 
 /* ============================================================
@@ -647,7 +697,10 @@ function buildWorld(){
   }
   [['emberfall','greenhollow'],['greenhollow','warrens'],['greenhollow','stonewatch'],
    ['stonewatch','barrow'],['stonewatch','rimehold'],['stonewatch','sunmere'],
-   ['sunmere','dunes'],['rimehold','glacier'],['dunes','ashroot'],['glacier','ashroot']
+   ['sunmere','dunes'],['rimehold','glacier'],['dunes','ashroot'],['glacier','ashroot'],
+   ['emberfall','altar'],['emberfall','abyss'],['emberfall','philadelphia'],
+   ['philadelphia','blacksun'],['philadelphia','sunmere'],['sunmere','laodicea'],
+   ['laodicea','ashroot']
   ].forEach(function(pr){ road(site(pr[0]), site(pr[1])); });
   /* clear a walkable apron around each site so nothing is walled in */
   sites.forEach(function(sp){
@@ -664,6 +717,7 @@ function buildWorld(){
 
 function worldZone(x,y){
   var t = world.m[y][x];
+  if(G.flags && (G.flags.locusts || G.flags.cavalry) && Math.random() < 0.45) return 'abyss';
   if(G.flags && G.flags.firFreed && !G.flags.firResealed && !G.flags.mantleSlain){
     var fs = SPECIAL_SITES[0];
     if(Math.abs(x - fs.x) < 7 && Math.abs(y - fs.y) < 7) return 'firwood';
@@ -689,10 +743,10 @@ function worldTier(x,y){
    ============================================================ */
 var TOWNS = {
 emberfall:{
-  name:'Emberfall', music:'town', innCost:12, worldPos:{x:20,y:44},
+  name:'Ephesus', music:'town', innCost:12, worldPos:{x:20,y:44},
   rows:[
     'TTTTTTTTTTTTTTTTTTTT',
-    'T,,,,,,FF,,,,,,,,,,T',
+    'T,,,,,,FF,,,,5,,,,,T',
     'T,#####,,,#####,,,,T',
     'T,#####,,,#####,,F,T',
     'T,##I##,,,##S##,,,,T',
@@ -709,25 +763,26 @@ emberfall:{
   ],
   spawn:{x:6,y:13},
   npcs:{
+    '5':{name:'Angel of the Church', special:'angel', angel:'ephesus', lines:[]},
     '1':{name:'Elder Sivane', lines:['Aetherwind is thinning, boy. The wells run grey.',
       'Vaeloth stirs beneath the Ashroot. Find the four seals before he wakes.',
-      'Start north, in Greenhollow. A scholar there reads the old script.']},
+      'Start north, in Smyrna. A scholar there reads the old script.']},
     '2':{name:'Guard Halden', lines:['Bandits on the north road. Redscarf Karn leads them.',
       'Keep a Potion on you and you will keep your teeth.']},
     '3':{name:'Farmer Bel', lines:['Rest at the inn before you go. Costs coin, saves blood.',
       'The shop restocks whenever you level up. Ask me not how.']},
     '4':{name:'Abel', lines:['I have been punching that rock since I was nine.',
-      'Something in me answers when the aether thins. It burns.',
+      'My brother tills. I burn what I bring, and something looks at it.',
       'Take me with you and I will show you what it turns into.'], recruit:'abel'}
   },
   shop:['potion','antidote','w_iron','w_oak','w_short','w_wrap','w_six','a_leather'],
   recruit:null
 },
 greenhollow:{
-  name:'Greenhollow', innCost:20, worldPos:{x:36,y:28},
+  name:'Smyrna', innCost:20, worldPos:{x:36,y:28},
   rows:[
     'TTTTTTTTTTTTTTTTTTTT',
-    'T,,,,,,,,,,,,,,,,,,T',
+    'T,,,,,,,,5,,,,,,,,,T',
     'T,#####,,,,,,#####,T',
     'T,##I##,,1,,,##S##,T',
     'T,,,,,,,,,,,,,,,,,,T',
@@ -744,20 +799,22 @@ greenhollow:{
   ],
   spawn:{x:6,y:13},
   npcs:{
-    '1':{name:'Mira', lines:['You are the one Sivane sent. I read the seal script.',
-      'Four seals: Barrow, Dunes, Rime, Ashroot. I go with you.'], recruit:'mira'},
+    '5':{name:'Angel of the Church', special:'angel', angel:'smyrna', lines:[]},
+    '1':{name:'Miriam', lines:['You are the one Sivane sent. I can read what is written on the scroll.',
+      'Seven seals, and no one found worthy to break the first of them.',
+      'I will come. Somebody has to say aloud what you are looking at.'], recruit:'miriam'},
     '2':{name:'Hunter Ada', lines:['Warrens crawl with goblins. Their brute hits hard.',
       'Fire burns the sprouts down fast.']},
     '3':{name:'Child Pip', lines:['The trees whisper when nobody talks. I like it.']}
   },
   shop:['potion','antidote','ether','bomb','w_knight','a_leather','a_robe','t_ring'],
-  recruit:'mira'
+  recruit:'miriam'
 },
 stonewatch:{
-  name:'Stonewatch', innCost:40, worldPos:{x:56,y:44},
+  name:'Pergamum', innCost:40, worldPos:{x:56,y:44},
   rows:[
     '####################',
-    '#,,,,,,,,,,,,,,,,,,#',
+    '#,,,,,,,,5,,,,,,,,,#',
     '#,#####,,,,,,#####,#',
     '#,##I##,,,,,,##S##,#',
     '#,,,,,,.....,,,,,,,#',
@@ -774,24 +831,26 @@ stonewatch:{
   ],
   spawn:{x:8,y:13},
   npcs:{
-    '1':{name:'Rook', lines:['Ranger of Greenhollow. I have been tracking the Barrow line.',
-      'Point me at it. My arrows do the rest.'], recruit:'rook'},
+    '5':{name:'Angel of the Church', special:'angel', angel:'pergamum', lines:[]},
+    '1':{name:'Jonathan', lines:['Ranger out of Smyrna. My bow does not turn back empty.',
+      'They say a rider with a bow is coming, and a crown handed to him.',
+      'Then he can meet one. Point me at the chamber.'], recruit:'jonathan'},
     '2':{name:'Smith Dura', lines:['Chain shirts here. Plate when you can pay for it.',
       'Gear changes the fight more than levels do.']},
     '3':{name:'Watchman Gilo', lines:['Sunken Barrow lies east. Bone knights hate holy light.',
       'The Warden sleeps north in the rime. Bring fire.']}
   },
   shop:['potion','hipotion','ether','phoenix','bomb','icejar','w_yew','w_iron_f','w_long','a_chain','t_boots'],
-  recruit:'rook'
+  recruit:'jonathan'
 },
 sunmere:{
-  name:'Sunmere', innCost:70, worldPos:{x:76,y:62},
+  name:'Thyatira', innCost:70, worldPos:{x:76,y:62},
   rows:[
     'ffffffffffffffffffff',
     'f,,,,,,,,,,,,,,,,,,f',
     'f,#####,,,,,,#####,f',
     'f,##I##,,,,,,##S##,f',
-    'f,,,,,,,,1,,,,,,,,,f',
+    'f,,,,,,,,1,,,,5,,,,f',
     'f,,........,.......f',
     'f,,.,,,,,,,,,,,,,,.f',
     'f,####,,,,,,,,,####f',
@@ -805,24 +864,25 @@ sunmere:{
   ],
   spawn:{x:6,y:13},
   npcs:{
-    '1':{name:'Vex', lines:['Heard you were walking into the dunes. That is funny.',
-      'I am out of work and out of patience. Deal me in.'], recruit:'vex'},
+    '5':{name:'Angel of the Church', special:'angel', angel:'thyatira', lines:[]},
+    '1':{name:'Jehu', lines:['Heard you were walking east to open something. That is funny.',
+      'I drive furiously and I am out of work. Deal me in.'], recruit:'jehu'},
     '2':{name:'Trader Yune', lines:['The Wyrm King took my caravan. Kill it and I will restock free.',
       'Ice hurts it. Everything hurts less.']},
     '3':{name:'Old Sana', lines:['Beyond the ash bridge, the Aetherwyrm waits.',
       'No seal, no entry. Break all four.']}
   },
   shop:['potion','hipotion','ether','phoenix','elixir','tent','bomb','icejar','w_wind','w_ash','w_star','a_mystic','t_amul','t_charm'],
-  recruit:'vex'
+  recruit:'jehu'
 },
 rimehold:{
-  name:'Rimehold', innCost:60, worldPos:{x:70,y:14},
+  name:'Sardis', innCost:60, worldPos:{x:70,y:14},
   rows:[
     '####################',
     '#,,,,,,,,,,,,,,,,,,#',
     '#,#####,,,,,,#####,#',
     '#,##I##,,,1,,##S##,#',
-    '#,,,,,,,,,,,,,,,,,,#',
+    '#,,,,,,,,5,,,,,,,,,#',
     '#,,......,,,......,#',
     '#,,,,,,.,,,,.,,,,,,#',
     '#,####,.,,,,.,,####,',
@@ -836,8 +896,10 @@ rimehold:{
   ],
   spawn:{x:7,y:13},
   npcs:{
-    '1':{name:'Orin', lines:['I have knelt in this cold for nine years waiting on a reason.',
-      'You are a poor reason. You will do.'], recruit:'orin'},
+    '5':{name:'Angel of the Church', special:'angel', angel:'sardis', lines:[]},
+    '1':{name:'Simeon', lines:['I have knelt in this cold nine years, waiting to see it before I died.',
+      'You walked in off the water with the whole thing in your eyes.',
+      'You are a poor reason. You will do.'], recruit:'simeon'},
     '2':{name:'Keeper Nils', special:'plague', lines:['The Warden guards the third seal under the glacier.',
       'It resists ice. Do not be clever. Bring fire.',
       'And the grey pest is in our wells. Half this town is coughing.']},
@@ -848,7 +910,68 @@ rimehold:{
       'in the vault below the chapel. I have not slept since.']}
   },
   shop:['potion','hipotion','ether','phoenix','tent','w_dawn','w_rune','a_plate','a_mystic','t_charm'],
-  recruit:'orin'
+  recruit:'simeon'
+}
+,
+philadelphia:{
+  name:'Philadelphia', innCost:80, worldPos:{x:44,y:56},
+  rows:[
+    'TTTTTTTTTTTTTTTTTTTT',
+    'T,,,,,,,,,,,,,,,,,,T',
+    'T,#####,,,,,,#####,T',
+    'T,##I##,,,1,,##S##,T',
+    'T,,,,,,,,,,,,,,,,,,T',
+    'T,,.............,,,T',
+    'T,,.,,,,,,,,,,,.,,,T',
+    'T,####,,,,,,,,,####T',
+    'T,####,,,,w,,,,####T',
+    'T,##D#,,,,,,,,,#D##T',
+    'T,,2,,,,,,,,,,,,,3,T',
+    'T,,,,,,,,g,,,,,,,,,T',
+    'TFF,,,,,,,,,,,,,,FFT',
+    'T,,,,,,,,,,,,,,,,,,T',
+    'TTTTTTEETTTTTTTTTTTT'
+  ],
+  spawn:{x:6,y:13},
+  npcs:{
+    '1':{name:'Angel of Philadelphia', special:'angel', angel:'philadelphia', lines:[]},
+    '2':{name:'Doorkeeper Ann', lines:['We have little power here and we know it.',
+      'We kept the word anyway. That is the whole of our boast.']},
+    '3':{name:'Watchman Elu', lines:['An open door stands here that no one can shut.',
+      'It is not for the strong. It is for whoever kept faith.']}
+  },
+  shop:['potion','hipotion','ether','phoenix','tent','a_chain','a_mystic','t_boots','t_amul'],
+  recruit:null
+},
+laodicea:{
+  name:'Laodicea', innCost:110, worldPos:{x:86,y:52},
+  rows:[
+    'ffffffffffffffffffff',
+    'f,,,,,,,,,,,,,,,,,,f',
+    'f,#####,,,,,,#####,f',
+    'f,##I##,,,1,,##S##,f',
+    'f,,,,,,,,,,,,,,,,,,f',
+    'f,,....,,,,,,....,,f',
+    'f,,.,,,,,,,,,,,,.,,f',
+    'f,####,,,,,,,,,####f',
+    'f,####,,,,w,,,,####f',
+    'f,##D#,,,,,,,,,#D##f',
+    'f,,2,,,,,,,,,,,,,3,f',
+    'f,,,,,,,,g,,,,,,,,,f',
+    'f,,,,,,,,,,,,,,,,,,f',
+    'f,,,,,,,,,,,,,,,,,,f',
+    'ffffffEEffffffffffff'
+  ],
+  spawn:{x:6,y:13},
+  npcs:{
+    '1':{name:'Angel of Laodicea', special:'angel', angel:'laodicea', lines:[]},
+    '2':{name:'Banker Otho', lines:['We are rich. We need nothing. Ask anyone here.',
+      'Why do you look at me like I am the one who is naked?']},
+    '3':{name:'Physician Kel', lines:['Our salve is famous. It has never once cleared an eye.',
+      'The water arrives here neither cold nor hot. Nobody will drink it.']}
+  },
+  shop:['potion','hipotion','elixir','phoenix','tent','a_plate','w_dawn','w_star','w_ash','t_charm'],
+  recruit:null
 }
 };
 var TOWN_LEGEND = {};
@@ -868,7 +991,11 @@ function loadTown(key){
       if(ch >= '1' && ch <= '9'){
         m[y][x] = T_GRASS;
         var def = t.npcs[ch];
-        if(def) npcs.push({x:x,y:y,name:def.name,lines:def.lines,recruit:def.recruit,special:def.special,dir:0,key:ch});
+        if(def){
+          var np = {x:x, y:y, dir:0, key:ch};
+          for(var dk2 in def) np[dk2] = def[dk2];
+          npcs.push(np);
+        }
       } else m[y][x] = TOWN_LEGEND[ch] !== undefined ? TOWN_LEGEND[ch] : T_GRASS;
     }
   }
@@ -901,6 +1028,78 @@ function exitCrypt(){
 }
 
 /* ============================================================
+   THE SEVEN LAMPSTANDS
+   ============================================================ */
+var CHURCHES = {
+  ephesus:{ order:1, town:'emberfall', title:'Ephesus',
+    opening:'He who holds the seven stars, who walks among the seven lampstands, says:',
+    know:['I know your works, your toil, your patient endurance.',
+          'You tested those who called themselves apostles and found them liars.',
+          'You have not grown weary. But you left the love you had at first.'],
+    charge:'Remember the height you fell from. Do the first works again, or the lampstand goes.',
+    trial:'b_nicolaitan', trialName:'The Nicolaitan Teacher',
+    trialLine:'Their teaching walks your streets. Hate the works and be done with it.',
+    promise:'t_treelife', promiseLine:'To him who conquers: the tree of life, in the paradise of God.'},
+  smyrna:{ order:2, town:'greenhollow', title:'Smyrna',
+    opening:'The first and the last, who died and came to life, says:',
+    know:['I know your tribulation and your poverty - and you are rich.',
+          'I know the slander of those who claim a name that is not theirs.',
+          'Do not fear what you are about to suffer.'],
+    charge:'Ten days of trial. Be faithful unto death and take the crown of life.',
+    trial:'b_tendays', trialName:'Ten Days of Tribulation', survive:10,
+    trialLine:'Prison and testing for ten days. Endure them. That is the whole task.',
+    promise:'t_crownlife', promiseLine:'He who conquers is not touched by the second death.'},
+  pergamum:{ order:3, town:'stonewatch', title:'Pergamum',
+    opening:'He who has the sharp two-edged sword says:',
+    know:['I know where you live - where the throne of the adversary stands.',
+          'You held my name. You did not deny the faith, even when Antipas was killed here.',
+          'But some among you keep the teaching of Balaam, and some the Nicolaitans.'],
+    charge:'Repent, or I come and make war on them with the sword of my mouth.',
+    trial:'b_balaam', trialName:'The Snare of Balaam',
+    trialLine:'Balaam taught Balak to lay a stumbling block. The stone is still in the road.',
+    promise:'t_whitestone', promiseLine:'Hidden manna, and a white stone with a new name no one else knows.'},
+  thyatira:{ order:4, town:'sunmere', title:'Thyatira',
+    opening:'The Son of God, whose eyes are a flame of fire and whose feet are burnished bronze, says:',
+    know:['I know your love and faith and service and endurance.',
+          'Your last works are greater than your first.',
+          'But you tolerate the woman who calls herself a prophetess.'],
+    charge:'She was given time to repent and refused. Hold fast what you have until I come.',
+    trial:'b_jezebel', trialName:'Jezebel, the Self-Named Prophetess',
+    trialLine:'She teaches and beguiles. She has had her time.',
+    promise:'w_rodiron', promiseLine:'Power over the nations, a rod of iron - and the morning star.'},
+  sardis:{ order:5, town:'rimehold', title:'Sardis',
+    opening:'He who has the seven spirits of God and the seven stars says:',
+    know:['I know your works. You have the name of being alive, and you are dead.',
+          'I have not found your works finished in the sight of my God.',
+          'Yet a few names here have not soiled their garments.'],
+    charge:'Wake up. Strengthen what remains. If you will not wake, I come like a thief.',
+    trial:'b_sleepers', trialName:'The Sleepers of Sardis',
+    trialLine:'The town has a reputation and a pulse, and only one of them is real.',
+    promise:'a_whitegarment', promiseLine:'White garments, and your name kept in the book of life.'},
+  philadelphia:{ order:6, town:'philadelphia', title:'Philadelphia',
+    opening:'The holy one, the true one, who holds the key of David - who opens and none shuts - says:',
+    know:['I know your works. I have set an open door before you that no one can shut.',
+          'You have little power, and you kept my word, and you did not deny my name.',
+          'You kept the word of patient endurance.'],
+    charge:'I come soon. Hold fast what you have so no one takes your crown.',
+    trial:'b_liars', trialName:'Those Who Lie About Their Name',
+    trialLine:'They will learn who was loved here. Then they will bow at this door.',
+    promise:'t_pillar', promiseLine:'A pillar in the temple of my God, marked with a new name.'},
+  laodicea:{ order:7, town:'laodicea', title:'Laodicea',
+    opening:'The Amen, the faithful and true witness, the beginning of God\'s creation, says:',
+    know:['I know your works. You are neither cold nor hot.',
+          'Would that you were one or the other. Because you are lukewarm I will spit you out.',
+          'You say you are rich and need nothing, and you are wretched, poor, blind and naked.'],
+    charge:'Buy gold refined by fire, white garments, salve for your eyes. Be zealous and repent.',
+    trial:'b_lukewarm', trialName:'The Lukewarm Thing',
+    trialLine:'I stand at the door and knock. Something else answered it.',
+    promise:'t_throne', promiseLine:'He who conquers sits with me on my throne, as I also conquered.'}
+};
+var CHURCH_ORDER = ['ephesus','smyrna','pergamum','thyatira','sardis','philadelphia','laodicea'];
+function churchDone(k){ return !!(G.flags.churches && G.flags.churches[k]); }
+function churchCount(){ var n=0; CHURCH_ORDER.forEach(function(k){ if(churchDone(k)) n++; }); return n; }
+
+/* ============================================================
    DUNGEONS
    ============================================================ */
 var CRYPT = {
@@ -931,16 +1130,30 @@ CRYPT_LEGEND['A'] = T_ALTAR; CRYPT_LEGEND['X'] = T_STAIR; CRYPT_LEGEND['C'] = T_
 CRYPT_LEGEND[','] = T_FLOOR;
 
 var DUNGEONS = {
-  warrens:{name:'Hollow Warrens', zone:'forest', floors:2, seed:11, boss:'b_chief', worldPos:{x:44,y:22},
-           loot:['potion','potion','hipotion','t_ring'], seal:0, tier:2},
-  barrow: {name:'Sunken Barrow', zone:'cave', floors:3, seed:22, boss:'b_treant', worldPos:{x:62,y:38},
-           loot:['hipotion','ether','a_chain','t_boots'], seal:1, tier:3},
-  dunes:  {name:'Wyrm Hollow', zone:'desert', floors:3, seed:33, boss:'b_wyrm', worldPos:{x:90,y:58},
-           loot:['hipotion','phoenix','a_mystic','t_amul'], seal:2, tier:4},
-  glacier:{name:'Rime Vault', zone:'snow', floors:3, seed:44, boss:'b_warden', worldPos:{x:80,y:10},
-           loot:['elixir','phoenix','a_plate','t_charm'], seal:3, tier:5},
-  ashroot:{name:'Ashroot Spire', zone:'volcano', floors:4, seed:55, boss:'b_dragon', worldPos:{x:96,y:36},
-           loot:['elixir','elixir','w_dawn','w_star'], seal:-1, tier:6, needSeals:4, mid:'b_colossus'}
+  warrens:{name:'The First Seal', zone:'forest', floors:2, seed:11, boss:'b_white', worldPos:{x:44,y:22},
+           loot:['potion','potion','hipotion','t_ring'], seal:1, tier:2, needChurches:7,
+           cry:'Come!', open:'A white horse, and a crown given to its rider, and a bow in his hand.'},
+  barrow: {name:'The Second Seal', zone:'cave', floors:3, seed:22, boss:'b_red', worldPos:{x:62,y:38},
+           loot:['hipotion','ether','a_chain','t_boots'], seal:2, tier:3, needSeals:1,
+           cry:'Come!', open:'A red horse. Its rider takes peace off the earth and is handed a great sword.'},
+  dunes:  {name:'The Third Seal', zone:'desert', floors:3, seed:33, boss:'b_black', worldPos:{x:90,y:58},
+           loot:['hipotion','phoenix','a_mystic','t_amul'], seal:3, tier:4, needSeals:2,
+           cry:'Come!', open:'A black horse, a balance in the rider\'s hand. A day\'s wage for a quart of wheat.'},
+  glacier:{name:'The Fourth Seal', zone:'snow', floors:3, seed:44, boss:'b_pale', worldPos:{x:80,y:10},
+           loot:['elixir','phoenix','a_plate','t_charm'], seal:4, tier:5, needSeals:3,
+           cry:'Come!', open:'A pale horse. Its rider is Death, and Hades comes along behind him.'},
+  altar:  {name:'The Fifth Seal', zone:'crypt', floors:2, seed:66, boss:'b_altar', worldPos:{x:26,y:34},
+           loot:['elixir','phoenix','a_whitegarment','t_charm'], seal:5, tier:5, needSeals:4,
+           cry:'How long?', open:'Under the altar, the souls of those killed for the word. Each is given a white robe.'},
+  blacksun:{name:'The Sixth Seal', zone:'volcano', floors:3, seed:77, boss:'b_sixth', worldPos:{x:58,y:66},
+           loot:['elixir','elixir','w_dawn','t_amul'], seal:6, tier:6, needSeals:5,
+           cry:'Fall on us.', open:'The sun goes black as sackcloth, the moon like blood, and the sky rolls up like a scroll.'},
+  abyss:  {name:'The Shaft of the Abyss', zone:'abyss', floors:3, seed:88, boss:'b_abaddon', worldPos:{x:16,y:60},
+           loot:['elixir','elixir','w_star','t_throne'], seal:-1, tier:7, needTrumpets:5,
+           open:'Smoke like a great furnace, and out of the smoke, locusts with the power of scorpions.'},
+  ashroot:{name:'Har-Magedon', zone:'volcano', floors:4, seed:55, boss:'b_seabeast', worldPos:{x:96,y:36},
+           loot:['elixir','elixir','w_rodiron','t_throne'], seal:-1, tier:8, needTrumpets:7, finale:true,
+           open:'They are gathered here for the great day. Every army of the earth, and what leads them.'}
 };
 
 function genDungeon(key, floor){
@@ -1003,10 +1216,12 @@ var STORE = (function(){
 function packHero(h){
   return {id:h.id, lv:h.lv, xp:h.xp, hp:h.hp, mp:h.mp, gear:h.gear, skills:h.skills, form:0};
 }
+var LEGACY_IDS = {kael:'gideon', mira:'miriam', rook:'jonathan', orin:'simeon', vex:'jehu'};
 function unpackHero(d){
-  var h = makeHero(d.id, d.lv);
+  var id = heroDef(d.id) ? d.id : (LEGACY_IDS[d.id] || 'gideon');
+  var h = makeHero(id, d.lv);
   h.xp = d.xp; h.gear = d.gear || {wep:null,arm:null,acc:null};
-  h.skills = d.skills || h.skills;
+  if(d.skills) h.skills = d.skills.filter(function(k){ return !!SKILLS[k]; });
   h.hp = Math.min(d.hp, maxHP(h)); h.mp = Math.min(d.mp, maxMP(h));
   return h;
 }
@@ -1048,7 +1263,7 @@ function loadSlot(n){
   G.party = (d.party || []).map(unpackHero);
   G.reserve = (d.reserve || []).map(unpackHero);
   G.follower = null; G.trail = null; G.menu = null; G.battle = null; G.msg = null;
-  if(!G.party.length) G.party = [makeHero('kael',1)];
+  if(!G.party.length) G.party = [makeHero('gideon',1)];
   var pos = d.pos || {kind:'town', key:'emberfall'};
   if(pos.kind === 'world'){ enterWorld(pos.x, pos.y); }
   else if(pos.kind === 'town'){ enterTown(pos.key); G.msg = null; G.scene = 'field'; }
@@ -1240,11 +1455,25 @@ function onStep(){
       for(var d in DUNGEONS){ var dg = DUNGEONS[d];
         if(dg.worldPos.x === G.px && dg.worldPos.y === G.py){
           G.worldPos = {x:G.px,y:G.py};
-          if(dg.needSeals && sealCount() < dg.needSeals){
-            say(['The gate of ' + dg.name + ' is sealed.', 'Break all four seals first. You hold ' + sealCount() + '.']);
+          if(dg.needChurches && churchCount() < dg.needChurches){
+            say(['No one in heaven or on earth is found worthy to open the scroll.',
+                 'Seven lampstands must stand first. Standing now: ' + churchCount() + ' of 7.']);
             return;
           }
-          enterDungeon(d, 1); return;
+          if(dg.needSeals && sealCount() < dg.needSeals){
+            say(['This seal is still under the one before it.',
+                 'Seals broken: ' + sealCount() + ' of 7.']);
+            return;
+          }
+          if(dg.needTrumpets && (G.flags.trumpets||0) < dg.needTrumpets){
+            say(['Nothing here answers yet.',
+                 'Trumpets sounded: ' + (G.flags.trumpets||0) + ' of 7.']);
+            return;
+          }
+          if(dg.open) say([dg.cry ? '"' + dg.cry + '"' : '', dg.open].filter(Boolean),
+                          function(){ enterDungeon(d, 1); });
+          else enterDungeon(d, 1);
+          return;
         } }
     }
   } else if(G.map.kind === 'town'){
@@ -1261,6 +1490,10 @@ function onStep(){
     if(t === T_THRONE){ startBossFight(); return; }
   }
   if(G.map.kind !== 'town'){
+    if(G.map.kind === 'world' && G.flags.sealsDone && (G.flags.trumpets||0) < 7){
+      G.flags.trumpetSteps = (G.flags.trumpetSteps||0) + 1;
+      if(G.flags.trumpetSteps >= 26){ G.flags.trumpetSteps = 0; soundTrumpet(); return; }
+    }
     G.steps++;
     var mounted = G.flags.mare && G.map.kind === 'world';
     if(G.steps >= G.encCounter * (mounted ? 2.4 : 1)){
@@ -1321,11 +1554,13 @@ function interact(){
 }
 function signText(){
   var m = G.map.key;
-  if(m === 'emberfall') return ['EMBERFALL - pop. 212.','North road: Greenhollow. Watch for bandits.'];
-  if(m === 'greenhollow') return ['GREENHOLLOW.','Warrens west. Stonewatch east.'];
-  if(m === 'stonewatch') return ['STONEWATCH.','Barrow east. Rime north. Dunes south.'];
-  if(m === 'sunmere') return ['SUNMERE.','Wyrm Hollow east. Bring water.'];
-  return ['RIMEHOLD.','The vault lies under the glacier.'];
+  if(m === 'emberfall') return ['EPHESUS. The first lampstand.','North road: Smyrna. The first seal lies past it.'];
+  if(m === 'greenhollow') return ['SMYRNA. Poor, and rich.','Ten days of testing, and then the crown.'];
+  if(m === 'stonewatch') return ['PERGAMUM. Where the throne is.','Antipas was killed on this street.'];
+  if(m === 'sunmere') return ['THYATIRA. Bronze and dye.','Her last works are greater than her first.'];
+  if(m === 'philadelphia') return ['PHILADELPHIA. Little power, kept word.','An open door that no one can shut.'];
+  if(m === 'laodicea') return ['LAODICEA. Gold, cloth, eye-salve.','The water arrives lukewarm. Nobody drinks it.'];
+  return ['SARDIS. A name for being alive.','Wake up, and strengthen what remains.'];
 }
 function nameOf(id){ var d = heroDef(id); return d ? d.name : id; }
 function hasHero(id){
@@ -1354,7 +1589,7 @@ function firEvent(){
   if(f.spiritLured){ resealScene(); return; }
   if(f.firFreed){
     say(['The crevice gapes where the stopper used to sit.',
-         'Whatever came out of it is not in Stonewatch for the weather.']);
+         'Whatever came out of it is not in Pergamum for the weather.']);
     return;
   }
   ask(['Something in the fir calls you by your own name.',
@@ -1374,7 +1609,7 @@ function firEvent(){
          'and the rock splits with a crash and swallows him.',
          'He comes back with two phials, yellow and white,',
          'and shuts the crag behind him with a second blow.',
-         '"Now Stonewatch," he says. "A magician there owes me a tree."'],
+         '"Now Pergamum," he says. "A magician there owes me a tree."'],
       function(){
         addItem('stopper'); addItem('phial_gold'); addItem('phial_white', 3); addItem('t_hazel');
         G.flags.firFreed = true; G.flags.spiritLoose = true;
@@ -1386,7 +1621,7 @@ function resealScene(){
        'You clap the stopper in, hammer it home with a stone,',
        'and cut three fresh crosses over the wood.',
        'The fir bucks like a mast in a gale. The plug holds.',
-       'The man who bound him in Stonewatch will never know.'],
+       'The man who bound him in Pergamum will never know.'],
     function(){
       G.flags.spiritLured = false; G.flags.spiritLoose = false; G.flags.firResealed = true;
       if(G.inv.stopper) useItemCount('stopper');
@@ -1397,7 +1632,7 @@ function resealScene(){
     });
 }
 function mantleEvent(){
-  ask(['The Scarlet Mantle stands in the square. Stonewatch is shuttered around it.',
+  ask(['The Scarlet Mantle stands in the square. Pergamum is shuttered around it.',
        '"The magician who corked me kept a door on this street."'],
       ['Doubt it can shrink to a spider again', 'Draw steel'], function(i){
     if(i === 1){
@@ -1406,7 +1641,7 @@ function mantleEvent(){
           G.flags.spiritLoose = false; G.flags.mantleSlain = true;
           addItem('elixir'); G.gold += 1200;
           say(['It comes apart into spiders, and the spiders into nothing.',
-               'Stonewatch opens its shutters. (+1200 gold)']);
+               'Pergamum opens its shutters. (+1200 gold)']);
         });
       });
       return;
@@ -1478,7 +1713,7 @@ function plagueEvent(n){
     return;
   }
   ask(['Nils coughs into his sleeve and does not show you what came up.',
-       'The grey pest is in the wells. Half of Rimehold is down with it.'],
+       'The grey pest is in the wells. Half of Sardis is down with it.'],
       ['Spend a dose of the White Phial', 'Keep the medicine'], function(i){
     if(i === 1){ say(['He nods. He would have kept it too.']); return; }
     useItemCount('phial_white');
@@ -1487,10 +1722,40 @@ function plagueEvent(n){
     G.party.forEach(function(h){ grantXP(h, 500); });
     say(['A white drop in each well in the square.',
          'By evening the coughing has stopped in three houses. By morning, in all of them.',
-         'Rimehold empties its strongbox into your hands. (+600 gold)']);
+         'Sardis empties its strongbox into your hands. (+600 gold)']);
+  });
+}
+function angelEvent(n){
+  var c = CHURCHES[n.angel];
+  if(!c) return;
+  if(churchDone(n.angel)){
+    say([c.opening, c.promiseLine, 'The lampstand stands. Go on to the next.']);
+    return;
+  }
+  if(!G.flags.patmos){
+    say(['The angel does not turn around.',
+         '"Not yet. You have not been shown the lampstands."',
+         'Something is waiting for you where the voice first spoke.']);
+    return;
+  }
+  ask([c.opening].concat(c.know).concat([c.charge, c.trialLine]),
+      ['Face ' + c.trialName, 'Not yet'], function(i){
+    if(i === 1){ say(['The angel waits. The letter does not expire.']); return; }
+    var key = n.angel;
+    beginBattle([makeEnemy(c.trial, 0, 1)], true, true, function(){
+      if(!G.flags.churches) G.flags.churches = {};
+      G.flags.churches[key] = true;
+      addItem(c.promise);
+      var lines = [c.promiseLine, 'Received: ' + GEAR[c.promise].name + '.'];
+      var n2 = churchCount();
+      if(n2 < 7) lines.push('Lampstands standing: ' + n2 + ' of 7.');
+      else lines.push('All seven stand. The scroll in the right hand can be opened now.');
+      say(lines);
+    }, c.survive ? {survive:c.survive} : null);
   });
 }
 function runNpcScript(n){
+  if(n.special === 'angel'){ angelEvent(n); return; }
   if(n.special === 'mantle'){ mantleEvent(); return; }
   if(n.special === 'sexton'){ sextonEvent(); return; }
   if(n.special === 'plague'){ plagueEvent(n); return; }
@@ -1506,6 +1771,144 @@ function runNpcScript(n){
     return;
   }
   say(n.lines);
+}
+
+/* ============================================================
+   HAR-MAGEDON, BABYLON, THE DRAGON, THE CITY
+   ============================================================ */
+function harBattle(id, intro, onWin){
+  say(intro, function(){
+    beginBattle([makeEnemy(id, 0, 1)], true, true, onWin);
+  });
+}
+function harmagedonChain(){
+  G.flags.harStage = 1;
+  harBattle('b_seabeast',
+    ['A beast comes up out of the sea: ten horns, seven heads, a blasphemous name on each.',
+     'Like a leopard, with a bear\'s feet and a lion\'s mouth.',
+     'One head carries a mortal wound that healed, and the whole earth follows it wondering.',
+     '"Who is like the beast? Who can fight against it?"'],
+    function(){
+      G.flags.harStage = 2;
+      harBattle('b_falseprophet',
+        ['A second beast comes up out of the earth. Two horns like a lamb. It speaks like a dragon.',
+         'It calls fire down out of heaven in front of everyone, and they believe it.',
+         'It marks them on the right hand or the forehead so they can buy and sell.',
+         'The number is a human number: six hundred and sixty-six.'],
+        function(){
+          G.flags.harStage = 3; G.flags.markBroken = true;
+          harBattle('b_babylon',
+            ['A woman on a scarlet beast, in purple and scarlet, gold and pearls,',
+             'a cup in her hand full of abominations, and a name of mystery on her forehead.',
+             'She is drunk on the blood of the saints, and she says in her heart:',
+             '"A queen I sit. I am no widow. I shall never see mourning."'],
+            function(){
+              G.flags.babylonFallen = true;
+              say(['"Fallen, fallen is Babylon the great."',
+                   'An angel throws a stone like a great millstone into the sea:',
+                   'so shall the great city be thrown down, and never be found again.',
+                   'No harper, no craftsman, no millstone, no lamp, no bridegroom - not any more.',
+                   'Behind her, the dragon that gave her the throne is still standing.'],
+                function(){
+                  G.flags.harStage = 4;
+                  harBattle('b_dragon',
+                    ['The great red dragon: seven heads, ten horns, seven diadems.',
+                     'Its tail drags a third of the stars down with it.',
+                     'Michael and his angels are already fighting. There is no room left for it in heaven.',
+                     'It comes down to you in great wrath, because it knows its time is short.'],
+                    function(){ finalVision(); });
+                });
+            });
+        });
+    });
+}
+function finalVision(){
+  G.flags.dragonBound = true;
+  say(['An angel comes down with the key of the abyss and a great chain,',
+       'seizes the ancient serpent, and shuts and seals him over for a thousand years.',
+       'Thrones are set, and those beheaded for the testimony live and reign.',
+       'Then a great white throne, and books opened, and another book, which is the book of life.',
+       'Death and Hades are thrown into the lake of fire. That is the second death.'],
+    function(){
+      say(['A new heaven and a new earth. The sea is no more.',
+           'The holy city comes down out of heaven, prepared as a bride for her husband.',
+           '"Behold, the dwelling of God is with men."',
+           'He wipes away every tear. Death is no more, nor mourning, nor crying, nor pain.',
+           'Twelve gates, twelve pearls, twelve foundations, and a street of clear gold.',
+           'No temple in it - the Lord God is its temple, and the Lamb is its lamp.',
+           'No sun needed, no lamp, and no night at all.',
+           'The Spirit and the Bride say: Come. Let the thirsty come and take the water freely.',
+           '"Surely I am coming soon." Amen. Come, Lord Jesus.',
+           'THE END - grace be with all the saints.'],
+        function(){
+          G.flags.finished = true;
+          leaveDungeon();
+        });
+    });
+}
+
+/* ============================================================
+   THE SEVENTH SEAL AND THE SEVEN TRUMPETS
+   ============================================================ */
+function seventhSeal(){
+  G.flags.sealsDone = true;
+  G.flags.trumpets = 0;
+  G.flags.trumpetSteps = 0;
+  G.seals.seventh = true;
+  say(['The Lamb opens the seventh seal.',
+       'There is silence in heaven for about half an hour.',
+       'Then seven angels are given seven trumpets, and an eighth',
+       'throws fire from the altar down onto the earth.',
+       'Walk. They will sound one at a time, wherever you are.']);
+}
+var TRUMPETS = [
+  {n:1, lines:['The first trumpet. Hail and fire mixed with blood fall on the earth.',
+    'A third of the trees burn. All the green grass burns.']},
+  {n:2, lines:['The second trumpet. Something like a great burning mountain is thrown into the sea.',
+    'A third of the sea turns to blood, and a third of the ships go down.']},
+  {n:3, lines:['The third trumpet. A star falls, blazing like a torch, onto the rivers.',
+    'Its name is Wormwood. The water turns bitter and men die of it.']},
+  {n:4, lines:['The fourth trumpet. A third of the sun is struck, and the moon, and the stars.',
+    'A third of the day keeps its light back, and a third of the night.']},
+  {n:5, lines:['The fifth trumpet. A star with the key of the shaft opens the abyss.',
+    'Smoke like a furnace, and locusts out of the smoke with the power of scorpions.',
+    'They are told to spare the grass and sting only the unsealed, for five months.']},
+  {n:6, lines:['The sixth trumpet. The four angels bound at the great river are released.',
+    'Cavalry beyond counting, breastplates of fire and sulphur, lion-headed horses.',
+    'A third of mankind is killed by the fire and smoke out of their mouths.']},
+  {n:7, lines:['The seventh trumpet. Loud voices in heaven:',
+    '"The kingdom of the world has become the kingdom of our Lord and of his Christ."',
+    'The temple of God in heaven opens, and the ark of his covenant is seen.',
+    'Lightning, thunder, an earthquake, and heavy hail. Har-Magedon is open.']}
+];
+function applyTrumpet(n){
+  var r = new LCG(9000 + n * 13), x, y;
+  if(n === 1){
+    for(y=0;y<WH;y++) for(x=0;x<WW;x++)
+      if((world.m[y][x] === T_FOREST || world.m[y][x] === T_TREE) && r.next() < 0.34) world.m[y][x] = T_BURNT;
+  } else if(n === 2){
+    TILE[T_WATER] = TILE_ALT.blood;
+  } else if(n === 3){
+    for(y=0;y<WH;y++) for(x=0;x<WW;x++)
+      if(world.m[y][x] === T_WATER && r.next() < 0.22) world.m[y][x] = T_BITTER;
+  } else if(n === 4){
+    G.flags.darkened = true;
+  } else if(n === 5){
+    G.flags.locusts = true;
+  } else if(n === 6){
+    G.flags.cavalry = true;
+    TILE[T_BRIDGE] = TILE_ALT.bridgeBurnt;
+  } else if(n === 7){
+    G.flags.kingdom = true;
+  }
+}
+function soundTrumpet(){
+  var n = (G.flags.trumpets || 0) + 1;
+  if(n > 7) return;
+  G.flags.trumpets = n;
+  applyTrumpet(n);
+  var t = TRUMPETS[n-1];
+  say(t.lines.concat(n < 7 ? [] : ['Go east, past the ash bridge.']));
 }
 
 /* ---------- inn + shop ---------- */
@@ -1578,7 +1981,10 @@ function drawField(){
     ctx.restore();
     oy -= 6;
   }
-  ctx.drawImage(G.sprites[lead ? lead.id : 'kael'], (G.dir*2+fr)*16, 0, 16, 16, ox, oy, 16, 16);
+  ctx.drawImage(G.sprites[lead ? lead.id : 'gideon'], (G.dir*2+fr)*16, 0, 16, 16, ox, oy, 16, 16);
+  if(G.flags.darkened && G.map.kind !== 'dungeon'){
+    ctx.fillStyle = 'rgba(10,8,20,0.34)'; ctx.fillRect(0,0,W,H);
+  }
   drawFieldHUD();
 }
 function drawFieldHUD(){
@@ -1717,7 +2123,7 @@ function startBossFight(){
   var b = makeEnemy(d.boss, 0, 1);
   beginBattle([b], true);
 }
-function beginBattle(enemies, isBoss, mid, onWin){
+function beginBattle(enemies, isBoss, mid, onWin, opts){
   /* name duplicates A/B/C */
   var counts = {};
   enemies.forEach(function(e){ counts[e.id] = (counts[e.id]||0)+1; });
@@ -1726,7 +2132,8 @@ function beginBattle(enemies, isBoss, mid, onWin){
     if(counts[e.id] > 1){ seen[e.id] = (seen[e.id]||0)+1; e.name = e.def.name + ' ' + 'ABC'[seen[e.id]-1]; }
   });
   G.battle = {
-    enemies: enemies, boss: isBoss, mid: !!mid, onWin: onWin || null, order: [], oi: 0, phase:'intro', timer: 40, fx: [],
+    enemies: enemies, boss: isBoss, mid: !!mid, onWin: onWin || null,
+    survive: (opts && opts.survive) || 0, round: 0, order: [], oi: 0, phase:'intro', timer: 40, fx: [],
     msg: (isBoss ? enemies[0].name + ' blocks the way!' : 'Ambush!'), pops:[], sel:0, sub:0, subList:null,
     target:0, targetSide:'enemy', actor:null, flee:false, escaped:false, anim:0, result:null, scroll:0
   };
@@ -1954,16 +2361,22 @@ function endBattle(){
   if(wasBoss && G.map.kind === 'dungeon' && kind === 'win'){
     var d = G.map.data;
     G.flags['boss_' + G.map.key] = true;
-    if(d.seal >= 0){
-      G.seals[G.map.key] = true;
-      say([d.boss === 'b_chief' ? 'Karn drops his scarf and does not get up.' : 'The guardian breaks apart.',
-           'A seal shatters. ' + sealCount() + ' of 4 broken.',
-           'The way out opens behind you.'], function(){ leaveDungeon(); });
-    } else {
-      say(['Vaeloth folds inward, and the sky goes quiet.',
-           'Aetherwind runs clear again. The wells fill overnight.',
-           'THE END - thank you for playing.'], function(){ leaveDungeon(); });
+    if(d.finale){ harmagedonChain(); return; }
+    if(d.key === 'abyss' || G.map.key === 'abyss'){
+      G.flags.abyssShut = true;
+      say(['Abaddon goes back down his own shaft and the smoke thins.',
+           'The locusts lift off the fields. Men stop asking to die.'], function(){ leaveDungeon(); });
+      return;
     }
+    if(d.seal > 0){
+      G.seals[G.map.key] = true;
+      var n = sealCount();
+      var lines = ['The seal breaks in the Lamb\'s hand.', 'Seals broken: ' + n + ' of 7.'];
+      if(n >= 6) lines.push('One seal left, and it is not in any chamber.');
+      say(lines, function(){ leaveDungeon(); if(n >= 6) seventhSeal(); });
+      return;
+    }
+    say(['It is finished here.'], function(){ leaveDungeon(); });
   }
 }
 function leaveDungeon(){
@@ -1980,6 +2393,12 @@ function checkEnd(){
 }
 function startRound(){
   var b = G.battle;
+  b.round++;
+  if(b.survive && b.round > b.survive){
+    b.result = {kind:'win', lines:['You endured the ten days.','Faithful to the end of them.']};
+    b.phase = 'result';
+    return;
+  }
   b.order = battleOrder(); b.oi = 0;
   nextActor();
 }
@@ -2216,6 +2635,7 @@ function drawBattleUI(){
     if(h.status && h.status.poison) text('P', 108, y+10, '#c98ae8', 7);
   }
   if(b.phase === 'intro'){ ctext(fitText(b.msg, W-24, 9), W/2, H-36, '#f2f4f8', 9); return; }
+  if(b.survive) text('Day ' + Math.min(b.survive, b.round) + ' of ' + b.survive, 8, 14, '#ffd95e', 8);
   if(b.phase === 'exec'){
     var m = b.msgs && b.msgs.length ? b.msgs[0] : '';
     text(fitText(m, W-20, 9), 10, H-42, '#f2f4f8', 9);
@@ -2464,29 +2884,40 @@ function drawMenu(){
     return;
   }
   if(t.page === 'journal'){
+    var stage = G.flags.finished ? 'The city has come down. It is finished.'
+      : G.flags.dragonBound ? 'The dragon is bound. Look for the new city.'
+      : G.flags.babylonFallen ? 'Babylon has fallen. The dragon still stands.'
+      : (G.flags.trumpets||0) >= 7 ? 'Seven trumpets sounded. Har-Magedon is open in the east.'
+      : G.flags.sealsDone ? 'The seventh seal is open. Walk, and the trumpets will sound.'
+      : sealCount() > 0 ? 'The scroll is opening, seal by seal.'
+      : churchCount() >= 7 ? 'All seven lampstands stand. The scroll can be opened.'
+      : 'Carry the letters to the seven churches.';
     var lines = [
-      'Seals broken: ' + sealCount() + ' of 4',
+      stage,
       '',
-      'Hollow Warrens (west of Greenhollow) - Redscarf Karn',
-      'Sunken Barrow (east of Stonewatch) - Elder Treant',
-      'Wyrm Hollow (east of Sunmere) - Sand Wyrm King',
-      'Rime Vault (north-east) - Ice Warden',
-      'Ashroot Spire - opens when all four seals break',
-      '',
-      'The sealed fir (forest, north of Emberfall): ' + (
+      'Lampstands standing: ' + churchCount() + ' of 7   -   Seals broken: ' + sealCount() + ' of 7'
+        + '   -   Trumpets: ' + (G.flags.trumpets||0) + ' of 7',
+      ''];
+    CHURCH_ORDER.forEach(function(k){
+      lines.push((churchDone(k) ? '+ ' : '- ') + CHURCHES[k].title + ': ' +
+        (churchDone(k) ? GEAR[CHURCHES[k].promise].name : CHURCHES[k].trialName));
+    });
+    lines.push('');
+    lines = lines.concat([
+      'The sealed fir (forest, north of Ephesus): ' + (
         G.flags.firResealed ? 'stoppered again' :
         G.flags.mantleSlain ? 'the mantle is dead' :
         G.flags.spiritLured ? 'it is walking back to the tree - follow it' :
-        G.flags.spiritLoose ? 'loose, and bound for Stonewatch' :
+        G.flags.spiritLoose ? 'loose, and bound for Pergamum' :
         G.flags.firFreed ? 'opened' : 'a voice calls from the trunk'),
-      'Rimehold vault: ' + (
+      'Sardis vault: ' + (
         G.flags.richFree ? (G.flags.mare ? 'she lives - the grey mare is yours' : 'she lives - the mare is still in the garret')
         : G.flags.escort ? 'walk her up to the Parroquet house'
         : G.flags.vaultKnown ? 'the chapel door goes down to the coffins' : 'a burgomaster is not sleeping'),
-      'Grey pest: ' + (G.flags.plagueCured ? 'broken by the white phial' : 'still in the wells at Rimehold'),
+      'Grey pest: ' + (G.flags.plagueCured ? 'broken by the white phial' : 'still in the wells at Sardis'),
       '',
       'Party: ' + G.party.concat(G.reserve).map(function(h){ return h.def.name + ' L' + h.lv; }).join(', ')
-    ];
+    ]);
     var wrapped = [];
     for(i=0;i<lines.length;i++){
       if(lines[i] === ''){ wrapped.push({t:'', head:false}); continue; }
@@ -2674,16 +3105,26 @@ function drawTitle(){
   ctext('Touch controls below on mobile', W/2, 222, '#7d8798', 7);
 }
 function newGame(){
-  G.party = [makeHero('kael',1)];
+  G.party = [makeHero('gideon',1)];
   G.reserve = [];
   G.gold = 150; G.inv = {potion:5, antidote:2, ether:1};
-  G.seals = {}; G.flags = {lastTown:'emberfall'}; G.follower = null; G.trail = null;
+  G.seals = {}; G.flags = {lastTown:'emberfall', churches:{}}; G.follower = null; G.trail = null;
   G.worldPos = {x:20, y:44};
   var sp = safeWorldSpot(20, 46);
   enterWorld(sp.x, sp.y);
-  say(['Emberfall, the last dry autumn.',
-       'Elder Sivane says the aether wells are running grey.',
-       'Walk north onto the town marker to begin.']);
+  say(['On the island called Patmos, for the word of God and the testimony of Jesus.',
+       'A loud voice behind you like a trumpet: "Write what you see in a book',
+       'and send it to the seven churches."',
+       'Turning, you see seven golden lampstands, and among them one like a son of man,',
+       'hair white as wool, eyes like a flame of fire, feet like burnished bronze,',
+       'seven stars in his right hand, and a sharp two-edged sword out of his mouth.',
+       'You fall at his feet as though dead. His right hand comes down on you.',
+       '"Fear not. I am the first and the last, and the living one.',
+       'I died, and behold I am alive for evermore, and I hold the keys of Death and Hades."',
+       'The seven stars are the angels of the seven churches.',
+       'The seven lampstands are the seven churches themselves.',
+       'Go to Ephesus. An angel is waiting there with the first letter.'],
+    function(){ G.flags.patmos = true; });
 }
 
 
@@ -3424,7 +3865,7 @@ function init(){
   ctx.imageSmoothingEnabled = false;
   var tc0 = document.getElementById('text');
   if(tc0){ TX = tc0.getContext('2d'); txScale = 1; }
-  buildTiles(); buildSprites(); buildWorld();
+  buildTiles(); buildAltTiles(); buildSprites(); buildWorld();
   setupInput();
   window.addEventListener('resize', resize);
   resize();
