@@ -80,7 +80,11 @@ var T_WATER=0,T_GRASS=1,T_FOREST=2,T_MOUNT=3,T_SAND=4,T_SNOW=5,T_ROAD=6,T_LAVA=7
     T_HILL=8,T_TOWN=9,T_CAVE=10,T_BRIDGE=11,T_FLOOR=12,T_WALL=13,T_DOOR=14,T_INN=15,
     T_SHOP=16,T_TREE=17,T_ROOF=18,T_EXIT=19,T_CHEST=20,T_STAIR=21,T_PATH=22,T_THRONE=23,
     T_ICE=24,T_DUNE=25,T_FLOWER=26,T_FENCE=27,T_SIGN=28,T_WELL=29,T_FIR=30,T_CRYPT=31,
-    T_COFFIN=32,T_ALTAR=33,T_BURNT=34,T_BITTER=35;
+    T_COFFIN=32,T_ALTAR=33,T_BURNT=34,T_BITTER=35,
+    T_COBBLE=36,T_BRICKPATH=37,T_STONEWALL=38,T_WOODFLOOR=39,T_MARKET=40,T_LAMP=41,
+    T_FOUNTAIN=42,T_STATUE=43,T_HEDGE=44,T_PLANTER=45,T_CRATE=46,T_BARREL=47,
+    T_STEPS=48,T_GARDEN=49,T_AWNING=50,T_ROOFBLUE=51,T_ROOFGREEN=52,
+    T_MARSH=53,T_RUINS=54,T_OASIS=55,T_CLIFF=56,T_ORCHARD=57,T_FARM=58,T_DOCK=59;
 
 function noise(g,n,cols,seed){
   var r = new LCG(seed);
@@ -135,6 +139,82 @@ function buildTiles(){
     px(x,2,14,12,2,'#2a241f'); px(x,11,7,1,3,'#6b3a1a'); });
   T(T_BITTER,function(x){ px(x,0,0,TS,TS,'#3f4a24'); noise(x,20,['#55632f','#2a3218'],67);
     px(x,2,4,5,1,'#8aa04a'); px(x,9,10,4,1,'#8aa04a'); px(x,6,7,3,2,'#1f2612'); });
+  /* --- paving and city dressing --- */
+  T(T_COBBLE,function(x){ px(x,0,0,TS,TS,'#8a8378');
+    for(var r0=0;r0<4;r0++) for(var c0=0;c0<4;c0++){
+      var ox=c0*4+((r0%2)?2:0), oy=r0*4;
+      px(x,ox%TS,oy,3,3,(r0+c0)%3?'#9a9288':'#7c7469'); px(x,ox%TS,oy+3,3,1,'#615b52'); } });
+  T(T_BRICKPATH,function(x){ px(x,0,0,TS,TS,'#a8663f');
+    for(var r1=0;r1<4;r1++){ var off=(r1%2)*4;
+      for(var c1=-1;c1<3;c1++) px(x,c1*8+off,r1*4,7,3,r1%2?'#b8734a':'#9c5c37'); }
+    px(x,0,0,TS,TS,'rgba(0,0,0,0)'); noise(x,10,['#c07f52','#8a4f2f'],83); });
+  T(T_STONEWALL,function(x){ px(x,0,0,TS,TS,'#6e6a63');
+    px(x,0,0,TS,7,'#8a867d'); px(x,0,8,TS,7,'#7c786f');
+    px(x,0,7,TS,1,'#4f4b45'); px(x,0,15,TS,1,'#4f4b45');
+    px(x,5,0,1,7,'#4f4b45'); px(x,11,8,1,7,'#4f4b45'); noise(x,10,['#9a968d'],89); });
+  T(T_WOODFLOOR,function(x){ px(x,0,0,TS,TS,'#8a5f36');
+    for(var i2=0;i2<TS;i2+=4){ px(x,0,i2,TS,3,i2%8?'#96693c':'#7d5530'); px(x,0,i2+3,TS,1,'#5c3d21'); }
+    px(x,7,0,1,TS,'#5c3d21'); });
+  T(T_MARKET,function(x){ px(x,0,0,TS,TS,'#4c9a3a'); px(x,1,7,14,8,'#8a5f36');
+    px(x,0,3,TS,4,'#c83a3a'); px(x,0,3,TS,2,'#e05a5a');
+    for(var m=0;m<4;m++) px(x,m*4,3,2,4,'#f0f0f0');
+    px(x,3,9,4,3,'#e0c463'); px(x,9,9,4,3,'#7ec8f5'); });
+  T(T_LAMP,function(x){ px(x,0,0,TS,TS,'#8a8378'); px(x,7,6,2,10,'#3a3a44');
+    px(x,5,1,6,6,'#2a2a33'); px(x,6,2,4,4,'#ffe08a'); px(x,7,0,2,2,'#3a3a44');
+    px(x,5,14,6,2,'#3a3a44'); });
+  T(T_FOUNTAIN,function(x){ px(x,0,0,TS,TS,'#8a8378'); px(x,1,2,14,12,'#9a968d');
+    px(x,3,4,10,8,'#2a6bb5'); px(x,4,5,8,6,'#3a80cc'); px(x,7,3,2,7,'#cfe6f5');
+    px(x,5,7,2,1,'#79b7ee'); px(x,10,9,2,1,'#79b7ee'); });
+  T(T_STATUE,function(x){ px(x,0,0,TS,TS,'#8a8378'); px(x,3,12,10,4,'#7c786f');
+    px(x,5,3,6,10,'#c8c4bb'); px(x,6,1,4,4,'#dad6cd'); px(x,4,5,2,5,'#b4b0a7');
+    px(x,10,5,2,5,'#b4b0a7'); px(x,7,2,1,1,'#5c584f'); px(x,9,2,1,1,'#5c584f'); });
+  T(T_HEDGE,function(x){ px(x,0,0,TS,TS,'#2f6b28'); noise(x,26,['#3f8f34','#245a1f'],97);
+    px(x,1,1,14,3,'#4a9e3c'); px(x,2,10,3,2,'#e8637d'); px(x,10,5,2,2,'#f0d05a'); });
+  T(T_PLANTER,function(x){ px(x,0,0,TS,TS,'#8a8378'); px(x,2,8,12,7,'#8a5f36');
+    px(x,2,8,12,2,'#a8763f'); px(x,3,3,10,6,'#3f8f34'); px(x,5,2,3,3,'#e8637d');
+    px(x,9,4,3,3,'#f0d05a'); });
+  T(T_CRATE,function(x){ px(x,0,0,TS,TS,'#8a8378'); px(x,1,2,14,13,'#8a5f36');
+    px(x,1,2,14,2,'#a8763f'); px(x,1,13,14,2,'#5c3d21');
+    px(x,7,2,2,13,'#6b4526'); px(x,1,7,14,2,'#6b4526'); });
+  T(T_BARREL,function(x){ px(x,0,0,TS,TS,'#8a8378'); px(x,3,2,10,13,'#7d5530');
+    px(x,2,4,12,2,'#4a4a52'); px(x,2,10,12,2,'#4a4a52');
+    px(x,4,2,8,2,'#96693c'); px(x,5,3,2,10,'#96693c'); });
+  T(T_STEPS,function(x){ px(x,0,0,TS,TS,'#8a8378');
+    for(var st=0;st<4;st++){ px(x,0,st*4,TS,3,st%2?'#9a9288':'#7c7469'); px(x,0,st*4+3,TS,1,'#5c584f'); } });
+  T(T_GARDEN,function(x){ px(x,0,0,TS,TS,'#6b4a2a'); noise(x,16,['#7c5730','#5a3d22'],101);
+    for(var gcol=0;gcol<3;gcol++){ px(x,2+gcol*5,3,2,10,'#3f8f34'); px(x,1+gcol*5,6,4,2,'#4fa844');
+      px(x,2+gcol*5,2,2,2,'#e0a63a'); } });
+  T(T_AWNING,function(x){ px(x,0,0,TS,TS,'#c8b48c'); px(x,0,0,TS,6,'#3a6b9c');
+    for(var aw=0;aw<4;aw++) px(x,aw*4,0,2,6,'#e8e4d8');
+    px(x,0,6,TS,1,'#2a4a6b'); px(x,2,8,12,7,'#8a5f36'); });
+  T(T_ROOFBLUE,function(x){ px(x,0,0,TS,TS,'#3a5f9c'); for(var b1=0;b1<TS;b1+=4) px(x,0,b1,TS,1,'#2a4574');
+    px(x,0,0,TS,2,'#5580c4'); });
+  T(T_ROOFGREEN,function(x){ px(x,0,0,TS,TS,'#3f7a4a'); for(var b2=0;b2<TS;b2+=4) px(x,0,b2,TS,1,'#2c5836');
+    px(x,0,0,TS,2,'#5aa268'); });
+  /* --- overworld variety --- */
+  T(T_MARSH,function(x){ px(x,0,0,TS,TS,'#4a5f3a'); noise(x,24,['#3a4f2c','#5a7048'],103);
+    px(x,2,5,5,2,'#3a5a4a'); px(x,9,10,5,2,'#3a5a4a');
+    px(x,4,2,1,4,'#6b8a4a'); px(x,11,4,1,5,'#6b8a4a'); px(x,7,11,1,4,'#6b8a4a'); });
+  T(T_RUINS,function(x){ px(x,0,0,TS,TS,'#4c9a3a'); noise(x,14,['#59ad44'],107);
+    px(x,2,4,4,11,'#9a968d'); px(x,2,3,4,2,'#b4b0a7');
+    px(x,9,7,4,8,'#8a867d'); px(x,9,6,4,2,'#a49f96');
+    px(x,6,12,4,3,'#7c786f'); });
+  T(T_OASIS,function(x){ px(x,0,0,TS,TS,'#dfc888'); px(x,3,6,10,8,'#2a6bb5');
+    px(x,4,7,8,6,'#3a80cc'); px(x,1,1,3,6,'#5c3d21');
+    px(x,0,0,7,3,'#3f8f34'); px(x,10,2,5,2,'#4fa844'); px(x,12,3,2,5,'#5c3d21'); });
+  T(T_CLIFF,function(x){ px(x,0,0,TS,TS,'#7c766c'); px(x,0,0,TS,4,'#9a948a');
+    px(x,0,4,TS,1,'#4f4b45'); px(x,3,5,3,11,'#615b52'); px(x,10,6,3,10,'#615b52');
+    noise(x,18,['#8a847a','#5c574f'],109); });
+  T(T_ORCHARD,function(x){ px(x,0,0,TS,TS,'#4c9a3a'); noise(x,10,['#59ad44'],113);
+    px(x,3,10,2,5,'#5c3d21'); px(x,1,4,7,7,'#2f6b28'); px(x,2,5,5,5,'#3f8f34');
+    px(x,3,6,2,2,'#e0503a'); px(x,11,11,2,4,'#5c3d21'); px(x,9,6,6,6,'#2f6b28');
+    px(x,10,7,4,4,'#3f8f34'); px(x,12,8,2,2,'#e0503a'); });
+  T(T_FARM,function(x){ px(x,0,0,TS,TS,'#7c5730'); noise(x,14,['#8a6238','#6b4a28'],127);
+    for(var f1=0;f1<4;f1++){ px(x,0,f1*4+1,TS,1,'#5a3d22'); px(x,1,f1*4,3,3,'#d8c463');
+      px(x,6,f1*4,3,3,'#c8b453'); px(x,11,f1*4,3,3,'#d8c463'); } });
+  T(T_DOCK,function(x){ px(x,0,0,TS,TS,'#2a6bb5'); noise(x,10,['#3a80cc'],131);
+    px(x,0,3,TS,10,'#8a5f36'); for(var d1=0;d1<TS;d1+=5) px(x,d1,3,1,10,'#5c3d21');
+    px(x,0,3,TS,1,'#a8763f'); px(x,0,12,TS,1,'#5c3d21'); });
   T(T_WELL,function(x){ px(x,0,0,TS,TS,'#4c9a3a'); px(x,3,6,10,8,'#8a867d'); px(x,5,8,6,5,'#1d2f4a'); px(x,2,4,12,2,'#6e6a63'); });
 }
 var TILE_ALT = {};
@@ -152,6 +232,9 @@ var BLOCKED = {};
 BLOCKED[T_WATER]=1; BLOCKED[T_MOUNT]=1; BLOCKED[T_LAVA]=1; BLOCKED[T_WALL]=1;
 BLOCKED[T_TREE]=1; BLOCKED[T_ROOF]=1; BLOCKED[T_FENCE]=1; BLOCKED[T_SIGN]=1; BLOCKED[T_WELL]=1;
 BLOCKED[T_COFFIN]=1; BLOCKED[T_ALTAR]=1; BLOCKED[T_BITTER]=1;
+BLOCKED[T_STONEWALL]=1; BLOCKED[T_MARKET]=1; BLOCKED[T_LAMP]=1; BLOCKED[T_FOUNTAIN]=1;
+BLOCKED[T_STATUE]=1; BLOCKED[T_HEDGE]=1; BLOCKED[T_PLANTER]=1; BLOCKED[T_CRATE]=1;
+BLOCKED[T_BARREL]=1; BLOCKED[T_CLIFF]=1; BLOCKED[T_ROOFBLUE]=1; BLOCKED[T_ROOFGREEN]=1;
 
 /* ============================================================
    CHARACTER + ENEMY SPRITE PAINTING
@@ -195,8 +278,82 @@ function makeWalker(p){
   return sheet.c;
 }
 
+/* weapon art, drawn into the battler at the right hand */
+function drawWeapon(x, look, skin){
+  if(!look) return;
+  var k = look.kind, bl = look.blade || '#d7dde8', gr = look.grip || '#6b4526',
+      ac = look.accent || '#a08040', gl = look.glow;
+  function glowline(gx,gy,gw,gh){ if(gl){ px(x,gx-1,gy-1,gw+2,gh+2,gl); } }
+  if(k === 'sword'){
+    glowline(26,2,2,20);
+    px(x,26,2,2,20,bl); px(x,25,3,1,18,shade(bl,40)); px(x,24,21,6,2,ac); px(x,26,23,2,6,gr);
+    px(x,25,29,4,2,ac);
+  } else if(k === 'katana'){
+    glowline(25,1,2,23);
+    px(x,25,1,2,23,bl); px(x,27,2,1,20,shade(bl,50)); px(x,24,3,1,4,shade(bl,-30));
+    px(x,23,23,7,2,ac); px(x,26,25,2,7,gr);
+  } else if(k === 'axe'){
+    glowline(22,2,10,10);
+    px(x,26,2,2,28,gr); px(x,22,3,4,10,bl); px(x,21,5,2,6,shade(bl,30));
+    px(x,28,4,4,8,bl); px(x,31,6,1,4,shade(bl,30)); px(x,25,1,4,3,ac);
+  } else if(k === 'spear'){
+    glowline(26,0,2,10);
+    px(x,26,4,2,28,gr); px(x,25,0,4,7,bl); px(x,26,0,2,3,shade(bl,50));
+    px(x,24,6,6,2,ac); px(x,26,30,2,2,ac);
+  } else if(k === 'scythe'){
+    px(x,27,4,2,28,gr);
+    glowline(18,2,12,6);
+    px(x,20,2,10,3,bl); px(x,18,4,4,3,bl); px(x,17,6,2,3,bl); px(x,20,5,8,2,shade(bl,40));
+    px(x,25,5,4,2,ac);
+  } else if(k === 'flail'){
+    px(x,26,14,2,16,gr); px(x,25,12,4,3,ac);
+    px(x,24,4,2,9,'#5a5a66');
+    glowline(21,0,8,8);
+    px(x,21,0,8,7,bl); px(x,20,2,2,3,bl); px(x,28,2,2,3,bl); px(x,23,2,3,3,shade(bl,30));
+  } else if(k === 'dagger'){
+    glowline(27,8,2,10);
+    px(x,27,8,2,11,bl); px(x,26,10,1,8,shade(bl,40)); px(x,25,18,6,2,ac); px(x,27,20,2,5,gr);
+  } else if(k === 'staff'){
+    px(x,26,1,2,29,gr);
+    glowline(23,0,8,6);
+    px(x,24,0,6,5,ac); px(x,25,1,4,3,bl); px(x,26,2,2,1,shade(bl,60));
+    px(x,25,6,4,1,ac);
+  } else if(k === 'rod'){
+    px(x,26,2,2,28,ac); px(x,25,2,4,2,bl); px(x,25,28,4,2,bl);
+    for(var ri=0;ri<5;ri++) px(x,25,7+ri*5,4,1,bl);
+  } else if(k === 'bow'){
+    glowline(25,2,4,24);
+    px(x,26,3,2,22,gr); px(x,25,2,2,4,gr); px(x,25,23,2,4,gr);
+    px(x,29,4,1,20,bl); px(x,24,12,6,1,bl);
+  } else if(k === 'crossbow'){
+    px(x,22,14,10,2,gr); px(x,26,10,2,12,gr);
+    px(x,22,10,2,6,bl); px(x,30,10,2,6,bl); px(x,23,11,8,1,bl);
+    px(x,26,8,2,4,ac);
+  } else if(k === 'pistol'){
+    px(x,24,15,8,3,'#5a5a66'); px(x,24,15,8,1,shade('#5a5a66',40));
+    px(x,24,18,4,5,gr); px(x,30,14,2,2,ac);
+    if(gl) px(x,31,14,2,4,gl);
+  } else if(k === 'rifle'){
+    px(x,20,14,12,3,'#4a4a56'); px(x,20,14,12,1,'#6a6a78');
+    px(x,20,17,5,4,gr); px(x,24,12,3,2,ac); px(x,31,13,2,4,ac);
+    if(gl) px(x,31,12,2,6,gl);
+  } else if(k === 'knuckle'){
+    px(x,24,14,7,6,skin || '#e7b98d');
+    px(x,24,13,7,3,bl); px(x,25,14,1,1,ac); px(x,27,14,1,1,ac); px(x,29,14,1,1,ac);
+    if(gl) px(x,23,12,9,2,gl);
+  } else if(k === 'claw'){
+    px(x,25,14,6,5,gr);
+    px(x,29,10,1,5,bl); px(x,31,11,1,5,bl); px(x,27,9,1,6,bl);
+    if(gl) px(x,27,8,5,2,gl);
+  } else if(k === 'whip'){
+    px(x,26,14,2,6,gr);
+    px(x,24,12,2,2,bl); px(x,22,10,2,2,bl); px(x,20,9,2,2,bl); px(x,18,10,2,2,bl);
+    px(x,16,12,2,2,bl); px(x,15,15,1,2,bl);
+  }
+}
+
 /* 32x32 battle portrait sprite for heroes */
-function makeHeroBattler(p){
+function makeHeroBattler(p, weaponLook){
   var g = mk(32,32), x = g.x;
   var skin=p.skin, hair=p.hair, body=p.body, trim=p.trim, boot=p.boot||'#3a2a1c';
   px(x,10,26,5,5,boot); px(x,17,26,5,5,boot);
@@ -206,7 +363,8 @@ function makeHeroBattler(p){
   px(x,11,4,10,10,skin);
   px(x,10,2,12,6,hair); px(x,10,2,12,2,shade(hair,34)); px(x,9,6,2,6,hair); px(x,21,6,2,6,hair);
   px(x,13,9,2,2,'#1b1b22'); px(x,18,9,2,2,'#1b1b22'); px(x,14,12,4,1,shade(skin,-40));
-  if(p.wep==='sword'){ px(x,26,2,2,20,'#d7dde8'); px(x,25,2,1,20,'#f2f6fb'); px(x,24,21,6,2,'#a08040'); px(x,26,23,2,5,'#6b4526'); }
+  if(weaponLook) drawWeapon(x, weaponLook, skin);
+  else if(p.wep==='sword'){ px(x,26,2,2,20,'#d7dde8'); px(x,25,2,1,20,'#f2f6fb'); px(x,24,21,6,2,'#a08040'); px(x,26,23,2,5,'#6b4526'); }
   else if(p.wep==='staff'){ px(x,26,1,2,28,'#8a5c33'); px(x,24,0,6,5,trim); px(x,25,1,4,3,shade(trim,50)); }
   else if(p.wep==='bow'){ px(x,26,3,2,22,'#8a5c33'); px(x,28,5,1,18,'#e6ddc0'); }
   else if(p.wep==='gun'){ px(x,24,15,8,3,'#5a5a66'); px(x,24,18,4,4,'#3a3a44'); px(x,30,14,2,2,'#8a8a99'); }
@@ -441,21 +599,35 @@ var ITEMS = {
 
 var GEAR = {
   /* weapons */
-  w_iron:   {name:'Iron Sword', slot:'wep', atk:6, price:200, who:['gideon'], desc:'Reliable, if plain.'},
-  w_knight: {name:'Knightblade', slot:'wep', atk:16, price:900, who:['gideon'], desc:'Ephesus steel.'},
-  w_dawn:   {name:'Dawnbreaker', slot:'wep', atk:30, price:2600, who:['gideon'], desc:'It hums at sunrise.'},
-  w_oak:    {name:'Oak Staff', slot:'wep', atk:2, mag:7, price:220, who:['miriam'], desc:'Focuses raw aether.'},
-  w_rune:   {name:'Rune Staff', slot:'wep', atk:3, mag:17, price:1000, who:['miriam'], desc:'Carved with old script.'},
-  w_star:   {name:'Starcaller', slot:'wep', atk:4, mag:31, price:2800, who:['miriam'], desc:'Pulls light from far off.'},
-  w_short:  {name:'Short Bow', slot:'wep', atk:5, spd:2, price:210, who:['jonathan'], desc:'Quick to draw.'},
-  w_yew:    {name:'Yew Longbow', slot:'wep', atk:14, spd:3, price:950, who:['jonathan'], desc:'Punches through mail.'},
-  w_wind:   {name:'Windsinger', slot:'wep', atk:27, spd:5, price:2700, who:['jonathan'], desc:'The arrow finds its own way.'},
-  w_wrap:   {name:'Hand Wraps', slot:'wep', atk:5, mag:3, price:200, who:['simeon'], desc:'Simple linen, well tied.'},
-  w_iron_f: {name:'Iron Knuckles', slot:'wep', atk:15, mag:6, price:960, who:['simeon'], desc:'Weighted for the strike.'},
-  w_lotus:  {name:'Lotus Gauntlets', slot:'wep', atk:28, mag:14, price:2750, who:['simeon'], desc:'Calm hands, hard palms.'},
-  w_six:    {name:'Six-Shooter', slot:'wep', atk:8, price:230, who:['jehu'], desc:'Worn grip, true barrel.'},
-  w_long:   {name:'Longshot', slot:'wep', atk:18, price:980, who:['jehu'], desc:'Kicks like a mule.'},
-  w_ash:    {name:'Ashmaker', slot:'wep', atk:33, price:2900, who:['jehu'], desc:'Leaves nothing standing.'},
+  w_iron:   {look:{kind:'sword',blade:'#c8ced8',grip:'#6b4526',accent:'#8a8a99'}, name:'Iron Sword', slot:'wep', atk:6, price:200, who:['gideon'], desc:'Reliable, if plain.'},
+  w_knight: {look:{kind:'sword',blade:'#e2e8f2',grip:'#4a3a5a',accent:'#c8a94a'}, name:'Knightblade', slot:'wep', atk:16, price:900, who:['gideon'], desc:'Ephesus steel.'},
+  w_dawn:   {look:{kind:'katana',blade:'#fff4d0',grip:'#8a2f2f',accent:'#ffd95e',glow:'#ffe9a0'}, name:'Dawnbreaker', slot:'wep', atk:30, price:2600, who:['gideon'], desc:'It hums at sunrise.'},
+  w_oak:    {look:{kind:'staff',blade:'#8ad6a0',grip:'#7d5530',accent:'#5f8a4c'}, name:'Oak Staff', slot:'wep', atk:2, mag:7, price:220, who:['miriam'], desc:'Focuses raw aether.'},
+  w_rune:   {look:{kind:'staff',blade:'#b48aff',grip:'#4a3a5a',accent:'#7c4fa8'}, name:'Rune Staff', slot:'wep', atk:3, mag:17, price:1000, who:['miriam'], desc:'Carved with old script.'},
+  w_star:   {look:{kind:'staff',blade:'#ffffff',grip:'#2f2a3a',accent:'#8ad6ff',glow:'#cfe8ff'}, name:'Starcaller', slot:'wep', atk:4, mag:31, price:2800, who:['miriam'], desc:'Pulls light from far off.'},
+  w_short:  {look:{kind:'bow',blade:'#e6ddc0',grip:'#7d5530',accent:'#8a6a3a'}, name:'Short Bow', slot:'wep', atk:5, spd:2, price:210, who:['jonathan'], desc:'Quick to draw.'},
+  w_yew:    {look:{kind:'bow',blade:'#f0e8cc',grip:'#5c3d21',accent:'#8a6a3a'}, name:'Yew Longbow', slot:'wep', atk:14, spd:3, price:950, who:['jonathan'], desc:'Punches through mail.'},
+  w_wind:   {look:{kind:'bow',blade:'#cfe8ff',grip:'#3f5d3a',accent:'#8ad6ff',glow:'#a8e0ff'}, name:'Windsinger', slot:'wep', atk:27, spd:5, price:2700, who:['jonathan'], desc:'The arrow finds its own way.'},
+  w_wrap:   {look:{kind:'knuckle',blade:'#e8e0cc',grip:'#8a6a3a',accent:'#c8b48c'}, name:'Hand Wraps', slot:'wep', atk:5, mag:3, price:200, who:['simeon'], desc:'Simple linen, well tied.'},
+  w_iron_f: {look:{kind:'knuckle',blade:'#9a9aa8',grip:'#4a4a52',accent:'#c8ced8'}, name:'Iron Knuckles', slot:'wep', atk:15, mag:6, price:960, who:['simeon'], desc:'Weighted for the strike.'},
+  w_lotus:  {look:{kind:'claw',blade:'#ffd95e',grip:'#8a3a30',accent:'#ffe9a0',glow:'#ffe9a0'}, name:'Lotus Gauntlets', slot:'wep', atk:28, mag:14, price:2750, who:['simeon'], desc:'Calm hands, hard palms.'},
+  w_six:    {look:{kind:'pistol',blade:'#c8ced8',grip:'#6b4526',accent:'#8a8a99'}, name:'Six-Shooter', slot:'wep', atk:8, price:230, who:['jehu'], desc:'Worn grip, true barrel.'},
+  w_long:   {look:{kind:'rifle',blade:'#c8ced8',grip:'#5c3d21',accent:'#a8a8b8'}, name:'Longshot', slot:'wep', atk:18, price:980, who:['jehu'], desc:'Kicks like a mule.'},
+  w_ash:    {look:{kind:'rifle',blade:'#e8e8f2',grip:'#2a2a30',accent:'#ff8a3a',glow:'#ff9a4a'}, name:'Ashmaker', slot:'wep', atk:33, price:2900, who:['jehu'], desc:'Leaves nothing standing.'},
+  /* expanded armoury */
+  w_axe:    {look:{kind:'axe',blade:'#c8a06a',grip:'#5c3d21',accent:'#8a6a3a'}, name:'Bronze Axe', slot:'wep', atk:11, price:520, who:['gideon'], desc:'Heavy, and it does not care about mail.'},
+  w_spear:  {look:{kind:'spear',blade:'#dfe4ec',grip:'#7d5530',accent:'#a08040'}, name:'Watchman Spear', slot:'wep', atk:13, spd:3, price:760, who:['gideon'], desc:'Reach, and a watchman who knows how to use it.'},
+  w_flail:  {look:{kind:'flail',blade:'#9a9aa8',grip:'#4a3a2a',accent:'#c8ced8'}, name:'Iron Flail', slot:'wep', atk:20, price:1250, who:['gideon'], desc:'As when earthen pots are broken in pieces.'},
+  w_scythe: {look:{kind:'scythe',blade:'#e8eef5',grip:'#3a2a1c',accent:'#c8a94a'}, name:'Harvest Scythe', slot:'wep', atk:24, mag:8, price:1900, who:['gideon'], desc:'Put in the sickle: the harvest of the earth is ripe.'},
+  w_twoedge:{look:{kind:'katana',blade:'#ffffff',grip:'#c8a94a',accent:'#ffd95e',glow:'#fff4c0'}, name:'Two-Edged Sword', slot:'wep', atk:38, mag:10, price:3600, who:['gideon'], desc:'The sword that comes out of his mouth. Nothing turns it.'},
+  w_dagger: {look:{kind:'dagger',blade:'#dfe4ec',grip:'#3a2a1c',accent:'#8a8a99'}, name:'Sealing Dagger', slot:'wep', atk:7, spd:5, price:300, who:['jonathan'], desc:'Short work, done close. It opened a fir tree once.'},
+  w_cross:  {look:{kind:'crossbow',blade:'#c8ced8',grip:'#5c3d21',accent:'#8a6a3a'}, name:'Crossbow of the First Seal', slot:'wep', atk:21, price:1400, who:['jonathan'], desc:'A bow given, and a crown, and he went out conquering.'},
+  w_measure:{look:{kind:'rod',blade:'#ffd95e',grip:'#8a6a3a',accent:'#fff4c0'}, name:'Measuring Rod', slot:'wep', atk:5, mag:22, price:1500, who:['miriam'], desc:'Rise and measure the temple, the altar, and those who worship.'},
+  w_whip:   {look:{kind:'whip',blade:'#c86a4a',grip:'#4a3a2a',accent:'#8a4a2a'}, name:'Cord of Three', slot:'wep', atk:16, spd:6, price:1100, who:['simeon'], desc:'Braided, and not quickly broken.'},
+  w_hunter: {look:{kind:'rifle',blade:'#b8b8c8',grip:'#4a3a2a',accent:'#8a8a99'}, name:'Long Hunter', slot:'wep', atk:25, spd:4, price:1600, who:['jehu'], desc:'He drives furiously, and he shoots the same way.'},
+  w_emberwrap:{look:{kind:'knuckle',blade:'#ff9a4a',grip:'#8a3a20',accent:'#ffd08a',glow:'#ff7a2a'}, name:'Ember Wraps', slot:'wep', atk:9, mag:6, price:340, who:['abel'], desc:'Linen that has been through more fire than linen should.'},
+  w_offering:{look:{kind:'claw',blade:'#e8e0cc',grip:'#7a4a2a',accent:'#ffd95e',glow:'#ffe9a0'}, name:'Gauntlets of the Offering', slot:'wep', atk:19, mag:14, price:1450, who:['abel'], desc:'He brought the best of it, and it was regarded.'},
+  w_lionpaw:{look:{kind:'claw',blade:'#ffd95e',grip:'#8a2f2f',accent:'#fff4c0',glow:'#ffd95e'}, name:'Lion of Judah Gauntlets', slot:'wep', atk:32, mag:24, price:3200, who:['abel'], desc:'The Lion of the tribe of Judah has conquered. He can open it.'},
   /* armor - shared */
   a_leather:{name:'Leather Vest', slot:'arm', def:6, price:180, desc:'Better than a shirt.'},
   a_chain:  {name:'Chain Shirt', slot:'arm', def:14, price:700, desc:'Rings on quilted cloth.'},
@@ -471,10 +643,48 @@ var GEAR = {
   t_treelife:{name:'Leaf of the Tree of Life', slot:'acc', hp:150, def:6, price:0, desc:'Twelve fruits, and leaves for the healing of the nations.'},
   t_crownlife:{name:'Crown of Life', slot:'acc', hp:220, spd:6, price:0, desc:'The second death has no power over the one who wears it.'},
   t_whitestone:{name:'White Stone', slot:'acc', mag:16, def:8, price:0, desc:'A new name is cut in it that nobody else can read.'},
-  w_rodiron:{name:'Rod of Iron', slot:'wep', atk:34, mag:12, price:0, desc:'It rules the nations and breaks pots. Given with the morning star.'},
+  w_rodiron:{look:{kind:'rod',blade:'#e8e8f2',grip:'#4a4a52',accent:'#8a8a99',glow:'#cfe8ff'}, name:'Rod of Iron', slot:'wep', atk:34, mag:12, price:0, desc:'It rules the nations and breaks pots. Given with the morning star.'},
   a_whitegarment:{name:'White Garment', slot:'arm', def:30, mag:14, price:0, desc:'Washed, and kept clean. The name stays in the book.'},
   t_pillar:{name:'Pillar Mark', slot:'acc', def:16, hp:120, price:0, desc:'A pillar in the temple, and it never goes out again.'},
   t_throne:{name:'Share of the Throne', slot:'acc', atk:14, mag:18, spd:8, price:0, desc:'A seat beside the one who conquered first.'},
+  t_wool:   {name:'Shepherd Wool', slot:'acc', atk:10, mag:10, price:0, who:['abel'],
+    desc:'Taken off the first thing that called itself a teacher. +10 damage.'},
+  /* the seven trumpets */
+  t_trump1: {name:'First Trumpet', slot:'acc', atk:14, price:0, onHit:{status:'burn', chance:0.35, turns:3},
+    desc:'Hail and fire mixed with blood. Your hits set the target burning.'},
+  t_trump2: {name:'Second Trumpet', slot:'acc', def:14, hp:90, price:0, onHit:{status:'fear', chance:0.32, turns:3},
+    desc:'A burning mountain thrown into the sea. Your hits break nerve.'},
+  t_trump3: {name:'Third Trumpet', slot:'acc', mag:18, price:0, onHit:{status:'poison', chance:0.42, turns:3},
+    desc:'Wormwood. The water turns bitter, and so does the wound.'},
+  t_trump4: {name:'Fourth Trumpet', slot:'acc', spd:12, def:8, price:0, onHit:{status:'chill', chance:0.38, turns:3},
+    desc:'A third of the light struck out. What you hit slows down in the dark.'},
+  t_trump5: {name:'Fifth Trumpet', slot:'acc', atk:12, mag:12, price:0, onHit:{status:'poison', chance:0.55, turns:4},
+    desc:'The shaft of the abyss. Scorpion-tailed torment, five months of it.'},
+  t_trump6: {name:'Sixth Trumpet', slot:'acc', atk:20, spd:6, price:0, onHit:{status:'burn', chance:0.48, turns:4},
+    desc:'Fire, smoke and sulphur out of the mouths of the horses.'},
+  t_trump7: {name:'Seventh Trumpet', slot:'acc', atk:12, def:12, mag:12, spd:12, hp:140, price:0, passive:'regen',
+    desc:'The kingdom of the world has become the kingdom of our Lord. You mend as you fight.'},
+  /* crowns */
+  c_endure: {name:'Crown of Endurance', slot:'acc', hp:240, def:10, price:0, passive:'regen',
+    desc:'Ten days survived. The wearer keeps closing back up.'},
+  c_path:   {name:'Crown of the Straight Path', slot:'acc', spd:14, atk:8, price:0, onHit:{status:'fear', chance:0.35, turns:3},
+    desc:'No stumbling block left in the road. What you strike loses its nerve.'},
+  c_stars:  {name:'Crown of Twelve Stars', slot:'acc', mag:24, hp:80, price:0, onHit:{status:'burn', chance:0.35, turns:3},
+    desc:'A woman clothed with the sun, the moon under her feet.'},
+  c_waking: {name:'Waking Crown', slot:'acc', def:20, mag:10, price:0, passive:'regen',
+    desc:'Strengthen what remains and is on the point of death.'},
+  c_kept:   {name:'Crown Kept', slot:'acc', def:14, spd:10, price:0, onHit:{status:'chill', chance:0.36, turns:3},
+    desc:'Hold fast what you have, so that no one seizes it.'},
+  c_refined:{name:'Crown of Gold Refined', slot:'acc', atk:18, mag:18, price:0,
+    desc:'Bought from him by fire, so that you may actually be rich.'},
+  c_martyr: {name:'Martyr Crown', slot:'acc', hp:200, mag:16, price:0, passive:'regen',
+    desc:'A white robe given, and told to rest a little longer.'},
+  c_horns:  {name:'Crown of the Lamb\'s Horns', slot:'acc', atk:22, price:0, onHit:{status:'fear', chance:0.42, turns:4},
+    desc:'Two horns like a lamb, and a voice like a dragon. Taken off the liar.'},
+  c_babylon:{name:'Diadem of Babylon', slot:'acc', atk:24, mag:16, price:0, onHit:{status:'poison', chance:0.45, turns:4},
+    desc:'Purple and scarlet, gold and pearls, and a cup full of abominations.'},
+  c_seven:  {name:'Seven Diadems', slot:'acc', atk:26, def:22, mag:26, spd:14, hp:200, price:0, onHit:{status:'burn', chance:0.5, turns:4},
+    desc:'Off the seven heads of the dragon itself. Nothing else compares.'},
   t_hazel:  {name:'Hazel Twig', slot:'acc', mag:14, spd:4, price:0, desc:'Cut on the road to the crag. It remembers splitting rock.'}
 };
 
@@ -537,7 +747,7 @@ var BESTIARY = {};
   E('b_wyrm','Sand Wyrm King','dragon','#d8b45a','#8a6a2a',1150,54,32,26,17,980,1400,{boss:true,weak:['ice'],skills:['quake','sweep']}),
   E('b_warden','Ice Warden','golem','#bfe4f5','#6f9fc0',1500,60,40,34,15,1400,1900,{boss:true,weak:['fire'],resist:['ice'],skills:['blizzard','sweep']}),
   E('b_colossus','Magma Colossus','golem','#d64a1a','#7a2410',2100,72,46,30,13,2100,2600,{boss:true,weak:['ice'],resist:['fire'],skills:['firaga','quake']}),
-  E('b_dragon','The Great Red Dragon','dragon','#c22a2a','#5c1010',9600,116,58,64,26,9999,9999,{boss:true,resist:['dark','fire'],weak:['holy'],skills:['firaga','quake','drain','starfall','cyclone']}),
+  E('b_dragon','The Great Red Dragon','dragon','#c22a2a','#5c1010',9600,116,58,64,26,9999,9999,{boss:true,drop:'c_seven',resist:['dark','fire'],weak:['holy'],skills:['firaga','quake','drain','starfall','cyclone']}),
   E('sealspider','Stopper Spider','insect','#2a2430','#12101a',120,27,14,10,19,52,44,{weak:['fire'],skills:['venom']}),
   E('mantlekin','Scarlet Kin','biped','#b02a3a','#5c1018',160,32,16,20,16,72,66,{resist:['dark'],weak:['holy'],skills:['fire']}),
   E('pestrat','Pest Rat','beast','#8a8378','#4f4a42',70,20,8,0,18,26,20,{skills:['venom']}),
@@ -569,33 +779,42 @@ var BESTIARY = {};
   E('ashhorror','Ash Horror','horror','#8a6a5a','#4a3428',196,36,20,30,12,108,100,{resist:['fire','dark'],weak:['holy','ice'],skills:['drain','quake']}),
   /* --- trials of the seven lampstands --- */
   E('b_nicolaitan','The Nicolaitan Teacher','biped','#8a6ad6','#42306b',520,30,18,26,16,300,420,{boss:true,weak:['holy'],skills:['drain','provoke']}),
-  E('b_tendays','The Ten Days','horror','#6a6a7a','#32323f',9000,30,26,24,14,420,500,{boss:true,resist:['phys','dark'],skills:['drain','cripple','quake']}),
-  E('b_balaam','Balaam of the Stumbling Block','biped','#b08a3a','#6b501c',900,40,24,28,17,620,760,{boss:true,weak:['holy'],skills:['quake','venom','focus']}),
-  E('b_jezebel','Jezebel of Thyatira','demon','#c2407a','#6b1c40',1500,52,28,44,20,1100,1400,{boss:true,resist:['dark','fire'],weak:['holy'],skills:['firaga','drain','cripple']}),
-  E('b_sleepers','The Sleepers of Sardis','undead','#c8c4b4','#6f6a5c',1800,56,34,26,12,1300,1500,{boss:true,weak:['holy'],resist:['dark'],skills:['sweep','drain']}),
-  E('b_liars','The Synagogue of the Liar','biped','#5a7a8a','#2c3f4a',2100,58,34,40,22,1500,1700,{boss:true,weak:['holy'],skills:['cyclone','provoke','drain']}),
-  E('b_lukewarm','The Lukewarm Thing','jelly','#b8a87a','#6b6248',2400,60,30,34,10,1800,2000,{boss:true,resist:['fire','ice'],weak:['holy'],skills:['drain','quake']}),
+  E('b_tendays','The Ten Days','horror','#6a6a7a','#32323f',9000,30,26,24,14,420,500,{boss:true,drop:'c_endure',resist:['phys','dark'],skills:['drain','cripple','quake']}),
+  E('b_balaam','Balaam of the Stumbling Block','biped','#b08a3a','#6b501c',900,40,24,28,17,620,760,{boss:true,drop:'c_path',weak:['holy'],skills:['quake','venom','focus']}),
+  E('b_jezebel','Jezebel of Thyatira','demon','#c2407a','#6b1c40',1500,52,28,44,20,1100,1400,{boss:true,drop:'c_stars',resist:['dark','fire'],weak:['holy'],skills:['firaga','drain','cripple']}),
+  E('b_sleepers','The Sleepers of Sardis','undead','#c8c4b4','#6f6a5c',1800,56,34,26,12,1300,1500,{boss:true,drop:'c_waking',weak:['holy'],resist:['dark'],skills:['sweep','drain']}),
+  E('b_liars','The Synagogue of the Liar','biped','#5a7a8a','#2c3f4a',2100,58,34,40,22,1500,1700,{boss:true,drop:'c_kept',weak:['holy'],skills:['cyclone','provoke','drain']}),
+  E('b_lukewarm','The Lukewarm Thing','jelly','#b8a87a','#6b6248',2400,60,30,34,10,1800,2000,{boss:true,drop:'c_refined',resist:['fire','ice'],weak:['holy'],skills:['drain','quake']}),
   /* --- the four riders --- */
-  E('b_white','The Rider with the Bow','beast','#f2efe6','#b8b2a4',2600,62,32,30,26,2000,2200,{boss:true,weak:['holy'],skills:['volley','pierce','focus']}),
-  E('b_red','The Rider with the Sword','beast','#d6301f','#7a1810',3000,72,34,20,24,2400,2600,{boss:true,resist:['fire'],skills:['sweep','slash','focus']}),
-  E('b_black','The Rider with the Balance','beast','#2f2b33','#15131a',3200,66,38,44,22,2700,3000,{boss:true,weak:['holy'],skills:['drain','cripple','quake']}),
-  E('b_pale','Death, and Hades Behind Him','beast','#9fb0a4','#4a5850',4200,80,42,50,25,3600,3800,{boss:true,resist:['dark'],weak:['holy'],skills:['drain','firaga','quake','cripple']}),
-  E('b_altar','The Souls Under the Altar','wisp','#e8e4d8','#a89c84',3600,70,36,56,20,3200,3400,{boss:true,resist:['phys'],skills:['holy','drain','cyclone']}),
-  E('b_sixth','The Sun Turned Black','golem','#3a3038','#16121a',4600,84,46,48,18,4000,4200,{boss:true,resist:['dark'],weak:['holy'],skills:['quake','starfall','firaga']}),
+  E('b_white','The Rider with the Bow','beast','#f2efe6','#b8b2a4',2600,62,32,30,26,2000,2200,{boss:true,drop:'t_trump1',weak:['holy'],skills:['volley','pierce','focus']}),
+  E('b_red','The Rider with the Sword','beast','#d6301f','#7a1810',3000,72,34,20,24,2400,2600,{boss:true,drop:'t_trump2',resist:['fire'],skills:['sweep','slash','focus']}),
+  E('b_black','The Rider with the Balance','beast','#2f2b33','#15131a',3200,66,38,44,22,2700,3000,{boss:true,drop:'t_trump3',weak:['holy'],skills:['drain','cripple','quake']}),
+  E('b_pale','Death, and Hades Behind Him','beast','#9fb0a4','#4a5850',4200,80,42,50,25,3600,3800,{boss:true,drop:'t_trump4',resist:['dark'],weak:['holy'],skills:['drain','firaga','quake','cripple']}),
+  E('b_altar','The Souls Under the Altar','wisp','#e8e4d8','#a89c84',3600,70,36,56,20,3200,3400,{boss:true,drop:'c_martyr',resist:['phys'],skills:['holy','drain','cyclone']}),
+  E('b_sixth','The Sun Turned Black','golem','#3a3038','#16121a',4600,84,46,48,18,4000,4200,{boss:true,drop:'t_trump6',resist:['dark'],weak:['holy'],skills:['quake','starfall','firaga']}),
   /* --- trumpets and the abyss --- */
   E('locust','Abyss Locust','insect','#c8a83a','#6b5518',210,42,18,12,26,120,90,{weak:['holy'],skills:['venom']}),
   E('wormstar','Wormwood Ember','wisp','#a8d63a','#4f6b18',240,38,16,40,22,140,110,{weak:['holy'],skills:['venom','drain']}),
   E('cavalry','Rider of the Euphrates','beast','#c2402a','#5c1810',320,52,24,32,24,180,160,{resist:['fire'],skills:['fire','fangrush']}),
   E('frogspirit','Foul Spirit like a Frog','blob','#6aa83a','#33591c',260,44,20,34,20,150,130,{weak:['holy'],skills:['cyclone','drain']}),
   E('marked','One Who Took the Mark','biped','#8a6a5a','#4a3428',300,50,26,20,20,170,150,{weak:['holy'],skills:['slash']}),
-  E('b_abaddon','Abaddon, King of the Abyss','insect','#d6b83a','#6b5518',5200,88,44,52,28,4600,4800,{boss:true,weak:['holy'],skills:['venom','cyclone','quake','firaga']}),
+  E('b_abaddon','Abaddon, King of the Abyss','insect','#d6b83a','#6b5518',5200,88,44,52,28,4600,4800,{boss:true,drop:'t_trump5',weak:['holy'],skills:['venom','cyclone','quake','firaga']}),
   /* --- the dragon and its two beasts --- */
-  E('b_seabeast','The Beast from the Sea','dragon','#8a2f3a','#3f0f18',6400,96,52,54,24,6000,6500,{boss:true,resist:['dark','fire'],weak:['holy'],skills:['firaga','sweep','quake','focus']}),
-  E('b_falseprophet','The Beast from the Earth','demon','#c8a84a','#6b5518',5600,88,46,66,26,5400,5800,{boss:true,resist:['fire','dark'],weak:['holy'],skills:['firaga','drain','starfall','cripple']}),
-  E('b_babylon','Babylon on the Scarlet Beast','demon','#c2306a','#5c1030',7200,100,50,70,25,7000,9000,{boss:true,resist:['dark','fire'],weak:['holy'],skills:['firaga','drain','starfall','cyclone']}),
-  E('b_mantle','The Scarlet Mantle','biped','#c81f32','#4a0a12',2200,66,38,58,24,2400,3000,{boss:true,resist:['dark','fire'],weak:['holy'],skills:['firaga','drain','quake','focus']}),
-  E('b_sexton','What the Sexton Became','undead','#d8d2c4','#6a6254',900,48,26,30,20,900,1200,{boss:true,weak:['holy'],resist:['dark'],skills:['drain','cripple']})
+  E('b_seabeast','The Beast from the Sea','dragon','#8a2f3a','#3f0f18',6400,96,52,54,24,6000,6500,{boss:true,drop:'t_trump7',resist:['dark','fire'],weak:['holy'],skills:['firaga','sweep','quake','focus']}),
+  E('b_falseprophet','The Beast from the Earth','demon','#c8a84a','#6b5518',5600,88,46,66,26,5400,5800,{boss:true,drop:'c_horns',resist:['fire','dark'],weak:['holy'],skills:['firaga','drain','starfall','cripple']}),
+  E('b_babylon','Babylon on the Scarlet Beast','demon','#c2306a','#5c1030',7200,100,50,70,25,7000,9000,{boss:true,drop:'c_babylon',resist:['dark','fire'],weak:['holy'],skills:['firaga','drain','starfall','cyclone']}),
+  E('b_mantle','The Scarlet Mantle','biped','#c81f32','#4a0a12',2200,66,38,58,24,2400,3000,{boss:true,drop:'c_kept',resist:['dark','fire'],weak:['holy'],skills:['firaga','drain','quake','focus']}),
+  E('b_sexton','What the Sexton Became','undead','#d8d2c4','#6a6254',900,48,26,30,20,900,1200,{boss:true,drop:'c_waking',weak:['holy'],resist:['dark'],skills:['drain','cripple']})
 ].forEach(function(e){ BESTIARY[e.id] = e; });
+/* purses scale with difficulty: tough monsters are worth killing */
+(function(){
+  for(var k in BESTIARY){
+    var e = BESTIARY[k];
+    var threat = e.hp * 0.35 + (e.atk + e.def + e.mag) * 3 + e.spd;
+    var mul = e.boss ? Math.min(3, 1 + threat / 1200) : 1 + threat / 300;
+    e.gold = Math.round(e.gold * mul);
+  }
+})();
 
 var ZONES = {
   plains:  ['slime','bslime','rat','boar','bee','bandit','hound','wisp','adder','jelly','crabkin','finch'],
@@ -679,6 +898,44 @@ function buildWorld(){
   river(30,20,26,1); river(58,54,20,1);
   world = {w:WW,h:WH,m:m,name:'The Seven Lands'};
 
+  /* regional detail before the roads are cut */
+  (function(){
+    var dr = new LCG(515151), dx, dy;
+    /* marsh in the low south-west */
+    for(dy=0;dy<WH;dy++) for(dx=0;dx<WW;dx++){
+      if(m[dy][dx] !== T_GRASS && m[dy][dx] !== T_FOREST) continue;
+      if(inEllipse(dx,dy,24,64,13,9) && dr.next() < 0.55) m[dy][dx] = T_MARSH;
+      else if(inEllipse(dx,dy,54,20,10,7) && dr.next() < 0.42) m[dy][dx] = T_MARSH;
+    }
+    /* orchards and farmland ring the settled middle */
+    for(dy=0;dy<WH;dy++) for(dx=0;dx<WW;dx++){
+      if(m[dy][dx] !== T_GRASS) continue;
+      if(inEllipse(dx,dy,28,44,12,9)){ if(dr.next() < 0.24) m[dy][dx] = T_FARM; else if(dr.next() < 0.16) m[dy][dx] = T_ORCHARD; }
+      else if(inEllipse(dx,dy,48,50,11,8)){ if(dr.next() < 0.20) m[dy][dx] = T_ORCHARD; }
+      else if(dr.next() < 0.012) m[dy][dx] = T_RUINS;
+    }
+    /* oases in the deep sand */
+    for(dy=0;dy<WH;dy++) for(dx=0;dx<WW;dx++)
+      if(m[dy][dx] === T_SAND && dr.next() < 0.006) m[dy][dx] = T_OASIS;
+    /* cliff shelves hugging the ranges, never on their own */
+    for(dy=1;dy<WH-1;dy++) for(dx=1;dx<WW-1;dx++){
+      if(m[dy][dx] !== T_GRASS && m[dy][dx] !== T_HILL && m[dy][dx] !== T_SNOW) continue;
+      var nearRock = (m[dy-1][dx] === T_MOUNT) || (m[dy+1][dx] === T_MOUNT) ||
+                     (m[dy][dx-1] === T_MOUNT) || (m[dy][dx+1] === T_MOUNT);
+      if(nearRock && dr.next() < 0.30) m[dy][dx] = T_CLIFF;
+    }
+    /* jetties where the roads will meet water */
+    for(dy=2;dy<WH-2;dy++) for(dx=2;dx<WW-2;dx++){
+      if(m[dy][dx] !== T_WATER) continue;
+      var landAdj = 0;
+      if(m[dy-1][dx] !== T_WATER) landAdj++;
+      if(m[dy+1][dx] !== T_WATER) landAdj++;
+      if(m[dy][dx-1] !== T_WATER) landAdj++;
+      if(m[dy][dx+1] !== T_WATER) landAdj++;
+      if(landAdj >= 2 && dr.next() < 0.05) m[dy][dx] = T_DOCK;
+    }
+  })();
+
   /* roads and sites */
   var sites = [];
   var tk, dk;
@@ -719,6 +976,10 @@ function buildWorld(){
 function worldZone(x,y){
   var t = world.m[y][x];
   if(G.flags && (G.flags.locusts || G.flags.cavalry) && Math.random() < 0.45) return 'abyss';
+  if(t === T_MARSH) return 'crypt';
+  if(t === T_ORCHARD || t === T_FARM) return 'plains';
+  if(t === T_RUINS || t === T_CLIFF) return 'cave';
+  if(t === T_OASIS) return 'desert';
   if(G.flags && G.flags.firFreed && !G.flags.firResealed && !G.flags.mantleSlain){
     var fs = SPECIAL_SITES[0];
     if(Math.abs(x - fs.x) < 7 && Math.abs(y - fs.y) < 7) return 'firwood';
@@ -776,7 +1037,7 @@ emberfall:{
       'My brother tills. I burn what I bring, and something looks at it.',
       'Take me with you and I will show you what it turns into.'], recruit:'abel'}
   },
-  shop:['potion','antidote','w_iron','w_oak','w_short','w_wrap','w_six','a_leather'],
+  shop:['potion','antidote','w_iron','w_oak','w_short','w_wrap','w_six','w_emberwrap','w_dagger','a_leather'],
   recruit:null
 },
 greenhollow:{
@@ -808,7 +1069,7 @@ greenhollow:{
       'Fire burns the sprouts down fast.']},
     '3':{name:'Child Pip', lines:['The trees whisper when nobody talks. I like it.']}
   },
-  shop:['potion','antidote','ether','bomb','w_knight','a_leather','a_robe','t_ring'],
+  shop:['potion','antidote','ether','bomb','w_knight','w_axe','w_spear','a_leather','a_robe','t_ring'],
   recruit:'miriam'
 },
 stonewatch:{
@@ -841,7 +1102,7 @@ stonewatch:{
     '3':{name:'Watchman Gilo', lines:['Sunken Barrow lies east. Bone knights hate holy light.',
       'The Warden sleeps north in the rime. Bring fire.']}
   },
-  shop:['potion','hipotion','ether','phoenix','bomb','icejar','w_yew','w_iron_f','w_long','a_chain','t_boots'],
+  shop:['potion','hipotion','ether','phoenix','bomb','icejar','w_yew','w_iron_f','w_long','w_flail','w_cross','w_whip','a_chain','t_boots'],
   recruit:'jonathan'
 },
 sunmere:{
@@ -910,7 +1171,7 @@ rimehold:{
       'My wife took the pest on Thursday. We buried her Sunday, rings and all,',
       'in the vault below the chapel. I have not slept since.']}
   },
-  shop:['potion','hipotion','ether','phoenix','tent','w_dawn','w_rune','a_plate','a_mystic','t_charm'],
+  shop:['potion','hipotion','ether','phoenix','tent','w_dawn','w_rune','w_scythe','w_measure','w_offering','w_lotus','a_plate','a_mystic','t_charm'],
   recruit:'simeon'
 }
 ,
@@ -971,7 +1232,7 @@ laodicea:{
     '3':{name:'Physician Kel', lines:['Our salve is famous. It has never once cleared an eye.',
       'The water arrives here neither cold nor hot. Nobody will drink it.']}
   },
-  shop:['potion','hipotion','elixir','phoenix','tent','a_plate','w_dawn','w_star','w_ash','t_charm'],
+  shop:['potion','hipotion','elixir','phoenix','tent','a_plate','w_star','w_ash','w_twoedge','w_lionpaw','w_hunter','t_charm'],
   recruit:null
 }
 };
@@ -981,6 +1242,12 @@ TOWN_LEGEND['T'] = T_TREE; TOWN_LEGEND['W'] = T_WATER; TOWN_LEGEND['D'] = T_DOOR
 TOWN_LEGEND['I'] = T_INN; TOWN_LEGEND['S'] = T_SHOP; TOWN_LEGEND['E'] = T_EXIT;
 TOWN_LEGEND['f'] = T_FENCE; TOWN_LEGEND['g'] = T_SIGN; TOWN_LEGEND['w'] = T_WELL;
 TOWN_LEGEND['F'] = T_FLOWER; TOWN_LEGEND['C'] = T_CRYPT;
+TOWN_LEGEND['c'] = T_COBBLE; TOWN_LEGEND['b'] = T_BRICKPATH; TOWN_LEGEND['='] = T_STONEWALL;
+TOWN_LEGEND['_'] = T_WOODFLOOR; TOWN_LEGEND['m'] = T_MARKET; TOWN_LEGEND['l'] = T_LAMP;
+TOWN_LEGEND['o'] = T_FOUNTAIN; TOWN_LEGEND['s'] = T_STATUE; TOWN_LEGEND['h'] = T_HEDGE;
+TOWN_LEGEND['p'] = T_PLANTER; TOWN_LEGEND['x'] = T_CRATE; TOWN_LEGEND['v'] = T_BARREL;
+TOWN_LEGEND['<'] = T_STEPS; TOWN_LEGEND['G'] = T_GARDEN; TOWN_LEGEND['a'] = T_AWNING;
+TOWN_LEGEND['B'] = T_ROOFBLUE; TOWN_LEGEND['N'] = T_ROOFGREEN;
 
 var NPC_NOSTEP = {};
 NPC_NOSTEP[T_EXIT]=1; NPC_NOSTEP[T_INN]=1; NPC_NOSTEP[T_SHOP]=1; NPC_NOSTEP[T_DOOR]=1;
@@ -1040,6 +1307,7 @@ function loadTown(key){
       } else m[y][x] = TOWN_LEGEND[ch] !== undefined ? TOWN_LEGEND[ch] : T_GRASS;
     }
   }
+  dressTown(key, m, w, h, npcs, t);
   var seedBase = 0;
   for(var si=0;si<key.length;si++) seedBase += key.charCodeAt(si);
   npcs.forEach(function(n, i){ initNpcMotion(n, m, w, h, seedBase + i * 31); });
@@ -1071,6 +1339,77 @@ function enterCrypt(){
 function exitCrypt(){
   if(G.flags.escort && !G.flags.richFree){ courtyardScene(); return; }
   enterTown('rimehold');
+}
+
+var TOWN_STYLE = {
+  emberfall:   {pave:T_COBBLE,     roof:T_ROOF,      props:['lamp','planter','crate','barrel','garden']},
+  greenhollow: {pave:T_PATH,       roof:T_ROOFGREEN, props:['hedge','planter','orchard','garden','barrel']},
+  stonewatch:  {pave:T_COBBLE,     roof:T_ROOF,      props:['statue','lamp','crate','stonewall','barrel']},
+  sunmere:     {pave:T_BRICKPATH,  roof:T_ROOF,      props:['market','awning','crate','lamp','planter']},
+  rimehold:    {pave:T_COBBLE,     roof:T_ROOFBLUE,  props:['statue','lamp','crate','stonewall']},
+  philadelphia:{pave:T_BRICKPATH,  roof:T_ROOFGREEN, props:['fountain','hedge','planter','lamp','garden']},
+  laodicea:    {pave:T_COBBLE,     roof:T_ROOFBLUE,  props:['fountain','statue','market','awning','lamp','planter']}
+};
+var PROP_TILE = {lamp:T_LAMP, planter:T_PLANTER, crate:T_CRATE, barrel:T_BARREL, hedge:T_HEDGE,
+  statue:T_STATUE, fountain:T_FOUNTAIN, market:T_MARKET, awning:T_AWNING, stonewall:T_STONEWALL,
+  garden:T_GARDEN, orchard:T_ORCHARD};
+/* a flood fill proves the town is still walkable after each prop lands */
+function townConnected(m, w, h, spawn, musts){
+  var seen = {}, q = [[spawn.x, spawn.y]];
+  seen[spawn.x + ',' + spawn.y] = 1;
+  while(q.length){
+    var c = q.pop();
+    var dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+    for(var i=0;i<4;i++){
+      var nx = c[0] + dirs[i][0], ny = c[1] + dirs[i][1];
+      if(nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+      if(BLOCKED[m[ny][nx]]) continue;
+      var k = nx + ',' + ny;
+      if(seen[k]) continue;
+      seen[k] = 1; q.push([nx, ny]);
+    }
+  }
+  for(var j=0;j<musts.length;j++) if(!seen[musts[j].x + ',' + musts[j].y]) return false;
+  return true;
+}
+function dressTown(key, m, w, h, npcs, t){
+  var style = TOWN_STYLE[key];
+  if(!style) return;
+  var r = new LCG(key.length * 7717 + key.charCodeAt(0) * 131), x, y;
+  /* repave the streets in this town's material */
+  if(style.pave !== T_PATH)
+    for(y=0;y<h;y++) for(x=0;x<w;x++) if(m[y][x] === T_PATH) m[y][x] = style.pave;
+  /* retile the roofs */
+  if(style.roof !== T_ROOF)
+    for(y=0;y<h;y++) for(x=0;x<w;x++) if(m[y][x] === T_ROOF) m[y][x] = style.roof;
+  /* the doorways and services must stay reachable */
+  var musts = [], spawn = t.spawn;
+  for(y=0;y<h;y++) for(x=0;x<w;x++){
+    var tt = m[y][x];
+    if(tt === T_DOOR || tt === T_INN || tt === T_SHOP || tt === T_EXIT || tt === T_CRYPT){
+      if(y+1 < h && !BLOCKED[m[y+1][x]]) musts.push({x:x, y:y+1});
+      else if(y-1 >= 0 && !BLOCKED[m[y-1][x]]) musts.push({x:x, y:y-1});
+    }
+  }
+  npcs.forEach(function(n){ musts.push({x:n.x, y:n.y}); });
+  var keepClear = {};
+  musts.forEach(function(mm){ keepClear[mm.x + ',' + mm.y] = 1; });
+  /* scatter street furniture on plain ground, never on a route that matters */
+  var placed = 0, tries = 0;
+  while(placed < 12 && tries < 420){
+    tries++;
+    x = 1 + r.int(w - 2); y = 1 + r.int(h - 2);
+    var cur = m[y][x];
+    if(cur !== T_GRASS && cur !== T_FLOWER) continue;
+    if(keepClear[x + ',' + y]) continue;
+    var prop = style.props[r.int(style.props.length)];
+    var tile = PROP_TILE[prop];
+    if(tile === undefined) continue;
+    var prev = m[y][x];
+    m[y][x] = tile;
+    if(BLOCKED[tile] && !townConnected(m, w, h, spawn, musts)){ m[y][x] = prev; continue; }
+    placed++;
+  }
 }
 
 var AMBIENT_LINES = [
@@ -1118,7 +1457,8 @@ var CHURCHES = {
     charge:'Remember the height you fell from. Do the first works again, or the lampstand goes.',
     trial:'b_nicolaitan', trialName:'The Nicolaitan Teacher',
     trialLine:'Their teaching walks your streets. Hate the works and be done with it.',
-    promise:'t_treelife', promiseLine:'To him who conquers: the tree of life, in the paradise of God.'},
+    promise:'t_treelife', extra:'t_wool',
+    promiseLine:'To him who conquers: the tree of life, in the paradise of God.'},
   smyrna:{ order:2, town:'greenhollow', title:'Smyrna',
     opening:'The first and the last, who died and came to life, says:',
     know:['I know your tribulation and your poverty - and you are rich.',
@@ -1388,6 +1728,31 @@ function makeHero(id, lv){
   h.hp = maxHP(h); h.mp = maxMP(h);
   return h;
 }
+function gearOnHit(h){
+  if(h.isE || !h.gear) return null;
+  var out = null;
+  ['wep','arm','acc'].forEach(function(sl){
+    var g = h.gear[sl];
+    if(g && GEAR[g] && GEAR[g].onHit && !out) out = GEAR[g].onHit;
+  });
+  return out;
+}
+function gearPassive(h, key){
+  if(h.isE || !h.gear) return false;
+  var found = false;
+  ['wep','arm','acc'].forEach(function(sl){
+    var g = h.gear[sl];
+    if(g && GEAR[g] && GEAR[g].passive === key) found = true;
+  });
+  return found;
+}
+function applyGearPassives(){
+  G.party.forEach(function(h){
+    if(!alive(h)) return;
+    if(gearPassive(h, 'regen')) h.status.regen = 99;
+    else if(h.status && h.status.regen === 99) delete h.status.regen;
+  });
+}
 function gearStat(h, key){
   var t = 0;
   ['wep','arm','acc'].forEach(function(s){ var g = h.gear[s]; if(g && GEAR[g] && GEAR[g][key]) t += GEAR[g][key]; });
@@ -1444,6 +1809,22 @@ function makeMare(){
   px(x,9,15,2,1,'#3a3a42'); px(x,11,15,2,1,'#3a3a42');
   px(x,1,6,2,5,'#c8c8d0'); px(x,10,1,3,3,'#c8c8d0');
   return g.c;
+}
+function battlerFor(h){
+  var wk = (h.gear && h.gear.wep) ? h.gear.wep : '';
+  var key = h.id + '#' + (h.form || 0) + '@' + wk;
+  if(G.battlers[key]) return G.battlers[key];
+  var look = {};
+  for(var k in h.def.look) look[k] = h.def.look[k];
+  if(h.form && h.def.forms){
+    var fm = h.def.forms[h.form];
+    look.hair = fm.hair;
+    look.trim = shade(h.def.look.trim, 40);
+    look.body = shade(h.def.look.body, 18);
+  }
+  var wl = (wk && GEAR[wk] && GEAR[wk].look) ? GEAR[wk].look : null;
+  G.battlers[key] = makeHeroBattler(look, wl);
+  return G.battlers[key];
 }
 function buildSprites(){
   G.sprites.mare = makeMare();
@@ -1895,6 +2276,7 @@ function angelEvent(n){
       G.flags.churches[key] = true;
       addItem(c.promise);
       var lines = [c.promiseLine, 'Received: ' + GEAR[c.promise].name + '.'];
+      if(c.extra){ addItem(c.extra); lines.push('Taken from the body: ' + GEAR[c.extra].name + '.'); }
       var n2 = churchCount();
       if(n2 < 7) lines.push('Lampstands standing: ' + n2 + ' of 7.');
       else lines.push('All seven stand. The scroll in the right hand can be opened now.');
@@ -2060,8 +2442,14 @@ function soundTrumpet(){
 }
 
 /* ---------- inn + shop ---------- */
+function innPrice(key){
+  var order = ['emberfall','greenhollow','stonewatch','sunmere','rimehold','philadelphia','laodicea'];
+  var i = order.indexOf(key);
+  if(i < 0) i = 0;
+  return Math.min(80, 20 + i * 10);
+}
 function openInn(){
-  var cost = G.map.data.innCost * Math.max(1, G.party.length);
+  var cost = innPrice(G.map.key);
   if(G.gold < cost){ say('The innkeeper shakes her head. ' + cost + ' gold a night.'); return; }
   G.gold -= cost;
   G.party.concat(G.reserve).forEach(function(h){ h.hp = maxHP(h); h.mp = maxMP(h); h.status = {}; h.buffs = {}; });
@@ -2159,6 +2547,133 @@ function drawFieldHUD(){
     bar(x, by + 26, colW - 14, 3, h.mp/Math.max(1,maxMP(h)), '#5a9fe8', '#1c2a44');
     text(h.hp + '/' + maxHP(h), x, by + 36, '#cfd6e2', 7);
   }
+}
+
+/* ============================================================
+   THE SCRIBE'S DESK - painted once, used behind title and journal
+   ============================================================ */
+var BOOKBG = null;
+function buildBookBg(){
+  var g = mk(W, H), x = g.x, i, j;
+  /* dark panelled wall */
+  var wall = x.createLinearGradient(0, 0, 0, H);
+  wall.addColorStop(0, '#140d09'); wall.addColorStop(0.45, '#25150d'); wall.addColorStop(1, '#0b0705');
+  x.fillStyle = wall; x.fillRect(0, 0, W, H);
+  for(i=0;i<W;i+=11){ x.fillStyle = 'rgba(0,0,0,0.18)'; x.fillRect(i, 0, 3, 96); }
+  /* table top */
+  var wood = x.createLinearGradient(0, 92, 0, H);
+  wood.addColorStop(0, '#4a2a15'); wood.addColorStop(0.35, '#5c3419'); wood.addColorStop(1, '#2a170b');
+  x.fillStyle = wood; x.fillRect(0, 92, W, H - 92);
+  var r = new LCG(31337);
+  for(i=0;i<70;i++){
+    var gy = 96 + r.int(H - 100);
+    x.fillStyle = 'rgba(0,0,0,' + (0.05 + r.next() * 0.10).toFixed(2) + ')';
+    x.fillRect(0, gy, W, 1 + r.int(2));
+  }
+  /* lamp glow from the right */
+  var glow = x.createRadialGradient(258, 108, 6, 258, 108, 150);
+  glow.addColorStop(0, 'rgba(255,196,96,0.55)');
+  glow.addColorStop(0.4, 'rgba(230,140,50,0.20)');
+  glow.addColorStop(1, 'rgba(0,0,0,0)');
+  x.fillStyle = glow; x.fillRect(0, 0, W, H);
+  /* stacked books, back left */
+  function stack(bx, by, bw, bh, c1, c2){
+    x.fillStyle = c2; x.fillRect(bx, by, bw, bh);
+    x.fillStyle = c1; x.fillRect(bx, by, bw, Math.max(2, bh - 3));
+    x.fillStyle = '#e8dcc0'; x.fillRect(bx + 2, by + 1, bw - 4, 2);
+    x.fillStyle = 'rgba(255,220,150,0.25)'; x.fillRect(bx, by, bw, 1);
+  }
+  stack(16, 78, 62, 9, '#2f4f7a', '#1b304a');
+  stack(12, 87, 68, 8, '#7a2f2f', '#4a1b1b');
+  stack(196, 66, 66, 9, '#2f5f4a', '#1b3a2c');
+  /* inkwell */
+  x.fillStyle = '#3a3a44'; x.fillRect(86, 78, 12, 10);
+  x.fillStyle = '#22222a'; x.fillRect(88, 74, 8, 6);
+  x.fillStyle = '#4a4a58'; x.fillRect(85, 87, 14, 3);
+  /* lamp */
+  x.fillStyle = '#7a2a1a'; x.fillRect(250, 118, 18, 6);
+  x.fillStyle = '#a83a22'; x.fillRect(252, 112, 14, 7);
+  x.fillStyle = 'rgba(255,230,170,0.55)'; x.fillRect(253, 88, 12, 26);
+  x.fillStyle = '#ffd66a';
+  x.beginPath(); x.moveTo(259, 82); x.quadraticCurveTo(266, 96, 259, 108);
+  x.quadraticCurveTo(252, 96, 259, 82); x.fill();
+  x.fillStyle = '#fff3c0';
+  x.beginPath(); x.moveTo(259, 88); x.quadraticCurveTo(263, 97, 259, 105);
+  x.quadraticCurveTo(255, 97, 259, 88); x.fill();
+  /* loose papers */
+  function paper(px2, py2, pw, ph, rot){
+    x.save(); x.translate(px2, py2); x.rotate(rot);
+    x.fillStyle = '#d8c9a0'; x.fillRect(0, 0, pw, ph);
+    x.fillStyle = '#bda87c'; x.fillRect(0, ph - 2, pw, 2);
+    x.fillStyle = '#8a7550';
+    for(var q=0;q<3;q++) x.fillRect(3, 4 + q * 4, pw - 8 - (q % 2) * 5, 1);
+    x.restore();
+  }
+  paper(24, 148, 44, 22, -0.16);
+  paper(238, 176, 52, 24, 0.12);
+  paper(200, 150, 40, 18, -0.06);
+  /* the open book */
+  var bx0 = 62, by0 = 126, bw0 = 196, bh0 = 74;
+  x.fillStyle = '#1b2f4a';
+  x.beginPath(); x.moveTo(bx0 - 6, by0 + bh0); x.lineTo(bx0 + bw0 + 6, by0 + bh0);
+  x.lineTo(bx0 + bw0 + 2, by0 + bh0 + 12); x.lineTo(bx0 - 2, by0 + bh0 + 12); x.fill();
+  x.fillStyle = '#2b4a72'; x.fillRect(bx0 - 4, by0 + bh0 - 4, bw0 + 8, 6);
+  /* pages */
+  function page(px2, py2, pw, ph, flip){
+    var pg = x.createLinearGradient(px2, py2, px2 + pw, py2);
+    pg.addColorStop(0, flip ? '#c9b489' : '#e3d3ac');
+    pg.addColorStop(0.5, '#efe1bd');
+    pg.addColorStop(1, flip ? '#e3d3ac' : '#c9b489');
+    x.fillStyle = pg;
+    x.beginPath();
+    x.moveTo(px2, py2 + 4);
+    x.quadraticCurveTo(px2 + pw / 2, py2 - 3, px2 + pw, py2 + 4);
+    x.lineTo(px2 + pw, py2 + ph);
+    x.quadraticCurveTo(px2 + pw / 2, py2 + ph + 5, px2, py2 + ph);
+    x.closePath(); x.fill();
+  }
+  page(bx0, by0, bw0 / 2 - 1, bh0, true);
+  page(bx0 + bw0 / 2 + 1, by0, bw0 / 2 - 1, bh0, false);
+  x.fillStyle = 'rgba(90,60,30,0.35)'; x.fillRect(bx0 + bw0 / 2 - 2, by0 + 2, 4, bh0 - 2);
+  /* handwriting */
+  x.fillStyle = 'rgba(70,48,26,0.72)';
+  for(j=0;j<9;j++){
+    var ly = by0 + 26 + j * 5;
+    if(ly > by0 + bh0 - 4) break;
+    x.fillRect(bx0 + 8, ly, 74 - (j % 3) * 9, 1);
+    x.fillRect(bx0 + bw0 / 2 + 8, ly, 76 - (j % 4) * 7, 1);
+  }
+  /* two inked illustrations */
+  x.strokeStyle = 'rgba(80,54,28,0.8)'; x.lineWidth = 1;
+  x.strokeRect(bx0 + 12, by0 + 8, 34, 16);
+  x.beginPath(); x.arc(bx0 + 29, by0 + 16, 5, 0, 6.3); x.stroke();
+  x.beginPath(); x.moveTo(bx0 + 16, by0 + 21); x.lineTo(bx0 + 42, by0 + 21); x.stroke();
+  x.strokeRect(bx0 + bw0 / 2 + 12, by0 + 8, 36, 16);
+  x.beginPath();
+  x.moveTo(bx0 + bw0 / 2 + 16, by0 + 20);
+  x.quadraticCurveTo(bx0 + bw0 / 2 + 30, by0 + 6, bx0 + bw0 / 2 + 44, by0 + 20);
+  x.stroke();
+  /* gemstones */
+  function gem(gx, gy, col, hi){
+    x.fillStyle = col;
+    x.beginPath(); x.moveTo(gx, gy - 4); x.lineTo(gx + 4, gy); x.lineTo(gx, gy + 4);
+    x.lineTo(gx - 4, gy); x.closePath(); x.fill();
+    x.fillStyle = hi; x.fillRect(gx - 1, gy - 2, 2, 2);
+  }
+  gem(28, 132, '#3a7fd6', '#a8d8ff');
+  gem(42, 140, '#8a3ad6', '#d8a8ff');
+  gem(20, 146, '#3ad6c2', '#a8fff2');
+  /* quill */
+  x.strokeStyle = '#efe6d2'; x.lineWidth = 2;
+  x.beginPath(); x.moveTo(268, 214); x.quadraticCurveTo(280, 198, 296, 190); x.stroke();
+  x.fillStyle = '#f6f0e0';
+  x.beginPath(); x.moveTo(296, 190); x.quadraticCurveTo(288, 196, 276, 206);
+  x.quadraticCurveTo(288, 202, 296, 190); x.fill();
+  /* vignette */
+  var vig = x.createRadialGradient(W/2, H/2, 60, W/2, H/2, 190);
+  vig.addColorStop(0, 'rgba(0,0,0,0)'); vig.addColorStop(1, 'rgba(0,0,0,0.62)');
+  x.fillStyle = vig; x.fillRect(0, 0, W, H);
+  BOOKBG = g.c;
 }
 
 /* ============================================================
@@ -2291,7 +2806,8 @@ function beginBattle(enemies, isBoss, mid, onWin, opts){
     msg: (isBoss ? enemies[0].name + ' blocks the way!' : 'Ambush!'), pops:[], sel:0, sub:0, subList:null,
     target:0, targetSide:'enemy', actor:null, flee:false, escaped:false, anim:0, result:null, scroll:0
   };
-  G.party.forEach(function(h){ h.buffs = {}; h.shake = 0; h.flash = 0; });
+  G.party.forEach(function(h){ h.buffs = {}; h.shake = 0; h.flash = 0; if(!h.status) h.status = {}; });
+  applyGearPassives();
   G.scene = 'battle';
 }
 function battleOrder(){
@@ -2302,10 +2818,15 @@ function battleOrder(){
 function spdOf(c){
   var v = c.isE ? c.spdv : stat(c,'spd');
   if(c.buffs && c.buffs.spd) v = Math.floor(v * c.buffs.spd.amt);
-  if(c.status && c.status.slow) v = Math.floor(v*0.6);
+  if(c.status && (c.status.slow || c.status.chill)) v = Math.floor(v*0.6);
   return v + rnd(3);
 }
-function atkOf(c){ var v = c.isE ? c.atkv : stat(c,'atk'); if(c.buffs&&c.buffs.atk) v = Math.floor(v*c.buffs.atk.amt); return v; }
+function atkOf(c){
+  var v = c.isE ? c.atkv : stat(c,'atk');
+  if(c.buffs && c.buffs.atk) v = Math.floor(v*c.buffs.atk.amt);
+  if(c.status && c.status.fear) v = Math.floor(v*0.7);
+  return v;
+}
 function defOf(c){ var v = c.isE ? c.defv : stat(c,'def'); if(c.buffs&&c.buffs.def) v = Math.floor(v*c.buffs.def.amt); if(c.guard) v = Math.floor(v*1.9); return v; }
 function magOf(c){ var v = c.isE ? c.magv : stat(c,'mag'); if(c.buffs&&c.buffs.mag) v = Math.floor(v*c.buffs.mag.amt); return v; }
 function hpOf(c){ return c.isE ? c.maxhp : maxHP(c); }
@@ -2338,6 +2859,13 @@ function damage(src, tgt, opts){
   if(crit) base *= 1.8;
   base *= 0.9 + Math.random()*0.2;
   var dmg = Math.max(1, Math.round(base));
+  var oh = gearOnHit(src);
+  if(oh && Math.random() < oh.chance){
+    if(!tgt.status) tgt.status = {};
+    tgt.status[oh.status] = Math.max(tgt.status[oh.status] || 0, oh.turns || 3);
+    pop(tgt, (STATUS_INFO[oh.status] ? STATUS_INFO[oh.status].tag : oh.status),
+        STATUS_INFO[oh.status] ? STATUS_INFO[oh.status].col : '#ffffff');
+  }
   tgt.hp -= dmg;
   tgt.shake = 12; tgt.flash = 10;
   pop(tgt, (crit ? '!' : '') + dmg, crit ? '#ffd35e' : (opts.type==='magic' ? '#a9d6ff' : '#ffffff'));
@@ -2349,6 +2877,11 @@ function healTarget(t, amt){
   t.hp = Math.min(m, t.hp + amt);
   pop(t, '+' + amt, '#7ce88a');
 }
+var STATUS_INFO = {
+  poison:{tag:'PSN', col:'#c98ae8'}, burn:{tag:'BRN', col:'#ff9a4a'},
+  chill:{tag:'CHL', col:'#8ad6ff'}, fear:{tag:'FER', col:'#c8a0d6'},
+  regen:{tag:'RGN', col:'#7ce88a'}
+};
 function statusTick(c, out){
   if(c.status && c.status.poison){
     var d = Math.max(1, Math.floor(hpOf(c) * 0.07));
@@ -2356,6 +2889,19 @@ function statusTick(c, out){
     pop(c, d, '#b06ad6');
     out.push(nameOfC(c) + ' takes poison damage.');
     if(c.hp === 0 && c.isE) c.dead = true;
+  }
+  if(c.status && c.status.burn){
+    var bd = Math.max(1, Math.floor(hpOf(c) * 0.09));
+    c.hp = Math.max(0, c.hp - bd);
+    pop(c, bd, '#ff9a4a');
+    fxAt(c, 'firewall', 'fire', {life:22});
+    out.push(nameOfC(c) + ' is burning.');
+    if(c.hp === 0 && c.isE) c.dead = true;
+  }
+  if(c.status && c.status.regen && c.hp > 0){
+    var rg = Math.max(1, Math.floor(hpOf(c) * 0.08));
+    c.hp = Math.min(hpOf(c), c.hp + rg);
+    pop(c, '+' + rg, '#7ce88a');
   }
   ['atk','def','spd','mag'].forEach(function(k){
     if(c.buffs && c.buffs[k]){ c.buffs[k].turns--; if(c.buffs[k].turns <= 0) delete c.buffs[k]; }
@@ -2477,7 +3023,7 @@ function battleWin(){
   var b = G.battle, xp = 0, gold = 0, drops = [];
   b.enemies.forEach(function(e){
     xp += e.def.xp; gold += e.def.gold;
-    if(e.def.drop && Math.random() < 0.3) drops.push(e.def.drop);
+    if(e.def.drop && (e.def.boss || Math.random() < 0.3)) drops.push(e.def.drop);
   });
   if(G.inv.phial_gold) gold *= 2;
   G.gold += gold;
@@ -2503,11 +3049,7 @@ function endBattle(){
   G.party.forEach(function(h){ h.form = 0; });
   G.battle = null;
   if(kind === 'lose'){
-    G.party.concat(G.reserve).forEach(function(h){ h.hp = Math.max(1, Math.floor(maxHP(h)*0.4)); h.mp = maxMP(h); h.status = {}; h.buffs={}; });
-    G.gold = Math.floor(G.gold * 0.8);
-    var home = G.flags.lastTown || 'emberfall';
-    G.worldPos = {x:TOWNS[home].worldPos.x, y:TOWNS[home].worldPos.y};
-    enterTown(home);
+    G.scene = 'gameover'; G.overSel = 0; G.overT = 0;
     return;
   }
   G.scene = 'field';
@@ -2762,10 +3304,10 @@ function drawBattle(){
     if(h.shake > 0){ hx += rnd(3)-1; h.shake--; }
     var fmH = alive(h) ? formOf(h) : null;
     if(fmH) drawAura(hx + 21, hy + 22, fxPal(fmH.pal), 1 + h.form * 0.13, G.tick + i * 11);
-    var artKey = (h.form && G.battlers[h.id + '#' + h.form]) ? h.id + '#' + h.form : h.id;
-    ctx.drawImage(G.battlers[artKey], hx, hy, 42, 42);
+    var art = battlerFor(h);
+    ctx.drawImage(art, hx, hy, 42, 42);
     if(h.flash > 0){ h.flash--; ctx.globalAlpha = h.flash/16; ctx.globalCompositeOperation='lighter';
-      ctx.drawImage(G.battlers[artKey], hx, hy, 42, 42); ctx.globalCompositeOperation='source-over'; }
+      ctx.drawImage(art, hx, hy, 42, 42); ctx.globalCompositeOperation='source-over'; }
     ctx.restore();
     h.ux = hx + 20; h.uy = hy;
     if(b.phase === 'target' && b.targetSide === 'ally' && b.target === i) cursor(hx - 8, hy + 20);
@@ -2791,7 +3333,16 @@ function drawBattleUI(){
     bar(160, y+3, 56, 7, h.hp/maxHP(h), '#5fd25a', '#22331f');
     text(h.hp + '/' + maxHP(h), 220, y+10, '#dfe5ee', 7);
     bar(284, y+3, 30, 7, h.mp/Math.max(1,maxMP(h)), '#5a9fe8', '#1c2a44');
-    if(h.status && h.status.poison) text('P', 108, y+10, '#c98ae8', 7);
+    if(h.status){
+      var sx2 = 96;
+      for(var st in h.status){
+        var si = STATUS_INFO[st];
+        if(!si) continue;
+        text(si.tag.charAt(0), sx2, y+10, si.col, 7);
+        sx2 += 7;
+        if(sx2 > 112) break;
+      }
+    }
   }
   if(b.phase === 'intro'){ ctext(fitText(b.msg, W-24, 9), W/2, H-36, '#f2f4f8', 9); return; }
   if(b.survive) text('Day ' + Math.min(b.survive, b.round) + ' of ' + b.survive, 8, 14, '#ffd95e', 8);
@@ -3013,7 +3564,7 @@ function drawMenu(){
   text('Gold ' + G.gold, 14, 24, '#f2f4f8', 8);
   if(t.page === 'status'){
     var h = G.party[t.data.hero];
-    ctx.drawImage(G.battlers[h.id], 18, 34, 52, 52);
+    ctx.drawImage(battlerFor(h), 18, 34, 52, 52);
     text(h.def.name, 78, 50, '#ffd95e', 10);
     text(fitText(h.def.title, 220, 7), 78, 64, '#c2cbd9', 7);
     text('Level ' + h.lv + '   XP ' + h.xp + '/' + xpNeed(h.lv), 78, 80, '#dfe5ee', 8);
@@ -3043,6 +3594,13 @@ function drawMenu(){
     return;
   }
   if(t.page === 'journal'){
+    if(BOOKBG){
+      ctx.drawImage(BOOKBG, 0, 0);
+      ctx.fillStyle = 'rgba(6,9,16,0.55)'; ctx.fillRect(0,0,W,H);
+      clearTextRect(0,0,W,H);
+      panel(6,6,W-12,H-12);
+      ctext('JOURNAL', W/2, 24, '#ffd95e', 11);
+    }
     var stage = G.flags.finished ? 'The city has come down. It is finished.'
       : G.flags.dragonBound ? 'The dragon is bound. Look for the new city.'
       : G.flags.babylonFallen ? 'Babylon has fallen. The dragon still stands.'
@@ -3229,25 +3787,68 @@ function titleOptions(){
   }
   return out;
 }
+function drawGameOver(){
+  var g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#000000'); g.addColorStop(0.42, '#01030a');
+  g.addColorStop(0.78, '#050d22'); g.addColorStop(1, '#0d1a3a');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  for(var y = 96; y < H; y += 2){
+    var a = (y - 96) / (H - 96);
+    ctx.fillStyle = 'rgba(120,160,230,' + (0.03 + a * 0.10).toFixed(3) + ')';
+    ctx.fillRect(0, y, W, 1);
+  }
+  var t = G.overT = (G.overT || 0) + 1;
+  var fade = Math.min(1, t / 70);
+  ctx.globalAlpha = fade;
+  ctext('GAME OVER', W/2, 108, '#ffffff', 22, 700);
+  ctx.globalAlpha = 1;
+  if(t < 80) return;
+  var opts = gameOverOptions();
+  for(var i=0;i<opts.length;i++){
+    var y2 = 154 + i * 20;
+    var sel = (G.overSel || 0) === i;
+    text(opts[i].label, 96, y2, sel ? '#ffd95e' : '#9fb0c8', 9);
+    if(sel) cursor(84, y2 - 4);
+  }
+  ctext('the lampstand is not removed while you draw breath', W/2, H - 18, '#54648a', 7);
+}
+function gameOverOptions(){
+  var out = [{k:'continue', label:'Take up the road again'}];
+  for(var i=1;i<=3;i++){ if(slotInfo(i)){ out.push({k:'load', label:'Load a saved book'}); break; } }
+  out.push({k:'title', label:'Return to the title'});
+  return out;
+}
+function gameOverConfirm(){
+  var opts = gameOverOptions(), o = opts[G.overSel || 0];
+  if(!o) return;
+  if(o.k === 'continue'){
+    G.party.concat(G.reserve).forEach(function(h){
+      h.hp = Math.max(1, Math.floor(maxHP(h) * 0.4)); h.mp = maxMP(h);
+      h.status = {}; h.buffs = {}; h.form = 0;
+    });
+    G.gold = Math.floor(G.gold * 0.8);
+    var home = G.flags.lastTown || 'emberfall';
+    G.worldPos = {x:TOWNS[home].worldPos.x, y:TOWNS[home].worldPos.y};
+    G.overT = 0;
+    enterTown(home);
+    return;
+  }
+  if(o.k === 'load'){ G.scene = 'title'; G.titleSel = 1; G.overT = 0; return; }
+  G.scene = 'title'; G.titleSel = 0; G.overT = 0;
+}
 function drawTitle(){
-  var grad = ctx.createLinearGradient(0,0,0,H);
-  grad.addColorStop(0,'#101c33'); grad.addColorStop(0.6,'#20344a'); grad.addColorStop(1,'#0b0f18');
-  ctx.fillStyle = grad; ctx.fillRect(0,0,W,H);
-  var r = new LCG(4242);
-  for(var i=0;i<60;i++){
-    var x = r.int(W), y = r.int(120);
-    ctx.fillStyle = 'rgba(255,255,255,' + (0.2 + 0.6*Math.abs(Math.sin((G.tick+i*23)/60))) + ')';
-    ctx.fillRect(x,y,1,1);
-  }
-  /* silhouette ridge */
-  ctx.fillStyle = '#0a1220';
-  for(var x2=0;x2<W;x2+=4){
-    var hgt = 40 + 26*Math.sin(x2/38) + 14*Math.sin(x2/11);
-    ctx.fillRect(x2, H-60-hgt, 4, hgt+60);
-  }
+  if(BOOKBG) ctx.drawImage(BOOKBG, 0, 0);
+  else { ctx.fillStyle = '#140d09'; ctx.fillRect(0,0,W,H); }
+  /* lamp flicker */
+  var fl = 0.10 + 0.05 * Math.sin(G.tick / 9) + 0.03 * Math.sin(G.tick / 3.3);
+  var lamp = ctx.createRadialGradient(259, 100, 4, 259, 100, 120);
+  lamp.addColorStop(0, 'rgba(255,210,120,' + fl.toFixed(3) + ')');
+  lamp.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = lamp; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle = 'rgba(6,8,14,0.42)'; ctx.fillRect(0, 26, W, 66);
   ctext('APOCALYPSE', W/2, 50, '#ffd95e', 26, 800);
   ctext('THE UNVEILING', W/2, 68, '#c2cbd9', 8);
-  ctext('what must soon take place', W/2, 84, '#bcd2e8', 8);
+  ctext('the end is near', W/2, 84, '#bcd2e8', 8);
   var opts = titleOptions();
   if(G.titleSel === undefined) G.titleSel = 0;
   panel(46, 102, 228, 84, 0.9);
@@ -3871,6 +4472,10 @@ function drawAura(cx, cy, pal, power, tick){
 var held = {up:false,down:false,left:false,right:false};
 var repeatT = 0;
 function pressDir(dx,dy){
+  if(G.scene === 'gameover'){
+    if(dy){ var ng = gameOverOptions().length; G.overSel = ((G.overSel||0) + dy + ng) % ng; }
+    return;
+  }
   if(G.scene === 'title'){
     if(dy){
       var n = titleOptions().length;
@@ -3892,6 +4497,7 @@ function pressDir(dx,dy){
   }
 }
 function pressA(){
+  if(G.scene === 'gameover'){ if((G.overT||0) >= 80) gameOverConfirm(); return; }
   if(G.scene === 'title'){
     var opts = titleOptions(), sel = opts[G.titleSel || 0];
     if(!sel || sel.slot === 0){ newGame(); return; }
@@ -3992,7 +4598,8 @@ function draw(){
   if(TX) TX.clearRect(0, 0, TX.canvas.width, TX.canvas.height);
   ctx.save();
   ctx.imageSmoothingEnabled = false;
-  if(G.scene === 'title') drawTitle();
+  if(G.scene === 'gameover') drawGameOver();
+  else if(G.scene === 'title') drawTitle();
   else if(G.scene === 'battle') drawBattle();
   else if(G.scene === 'menu') drawMenu();
   else if(G.scene === 'shop') drawShop();
@@ -4026,7 +4633,7 @@ function init(){
   ctx.imageSmoothingEnabled = false;
   var tc0 = document.getElementById('text');
   if(tc0){ TX = tc0.getContext('2d'); txScale = 1; }
-  buildTiles(); buildAltTiles(); buildSprites(); buildWorld();
+  buildTiles(); buildAltTiles(); buildSprites(); buildBookBg(); buildWorld();
   setupInput();
   window.addEventListener('resize', resize);
   resize();
