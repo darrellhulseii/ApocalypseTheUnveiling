@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0b0f18">
-<title>Aetherwind</title>
+<title>Apocalypse</title>
 <style>
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;height:100%;background:#05070c;overflow:hidden;
@@ -52,7 +52,7 @@
 </div>
 <script>
 /* ============================================================
-   AETHERWIND - a single-file 16-bit style browser JRPG
+   APOCALYPSE - a single-file 16-bit style browser JRPG
    ============================================================ */
 (function(){
 'use strict';
@@ -676,7 +676,7 @@ function buildWorld(){
     }
   }
   river(30,20,26,1); river(58,54,20,1);
-  world = {w:WW,h:WH,m:m,name:'Aetherwind'};
+  world = {w:WW,h:WH,m:m,name:'The Seven Lands'};
 
   /* roads and sites */
   var sites = [];
@@ -764,7 +764,7 @@ emberfall:{
   spawn:{x:6,y:13},
   npcs:{
     '5':{name:'Angel of the Church', special:'angel', angel:'ephesus', lines:[]},
-    '1':{name:'Elder Sivane', lines:['Aetherwind is thinning, boy. The wells run grey.',
+    '1':{name:'Elder Sivane', lines:['The light over the seven lands is thinning. The wells run grey.',
       'Vaeloth stirs beneath the Ashroot. Find the four seals before he wakes.',
       'Start north, in Smyrna. A scholar there reads the old script.']},
     '2':{name:'Guard Halden', lines:['Bandits on the north road. Redscarf Karn leads them.',
@@ -1203,6 +1203,7 @@ function genDungeon(key, floor){
 /* ============================================================
    SAVE / LOAD - three slots
    ============================================================ */
+var SAVE_KEY = 'apocalypse_save_';
 var STORE = (function(){
   var mem = {}, ok = false;
   try { window.localStorage.setItem('__aw_t','1'); window.localStorage.removeItem('__aw_t'); ok = true; } catch(e){}
@@ -1241,11 +1242,18 @@ function snapshot(){
 }
 function saveSlot(n){
   if(G.scene !== 'menu' && G.scene !== 'field') return false;
-  STORE.set('aetherwind_save_' + n, snapshot());
+  STORE.set(SAVE_KEY + n, snapshot());
   return true;
 }
+function slotRaw(n){
+  var raw = STORE.get(SAVE_KEY + n);
+  if(raw) return raw;
+  var legacy = STORE.get('aetherwind_save_' + n);
+  if(legacy){ STORE.set(SAVE_KEY + n, legacy); return legacy; }
+  return null;
+}
 function slotInfo(n){
-  var raw = STORE.get('aetherwind_save_' + n);
+  var raw = slotRaw(n);
   if(!raw) return null;
   try {
     var d = JSON.parse(raw);
@@ -1254,7 +1262,7 @@ function slotInfo(n){
   } catch(e){ return null; }
 }
 function loadSlot(n){
-  var raw = STORE.get('aetherwind_save_' + n);
+  var raw = slotRaw(n);
   if(!raw) return false;
   var d;
   try { d = JSON.parse(raw); } catch(e){ return false; }
@@ -1381,7 +1389,7 @@ function buildSprites(){
    FIELD
    ============================================================ */
 function enterWorld(x,y){
-  G.map = {kind:'world', name:'Aetherwind', w:WW, h:WH, m:world.m, npcs:[]};
+  G.map = {kind:'world', name:'The Seven Lands', w:WW, h:WH, m:world.m, npcs:[]};
   G.px = x; G.py = y; G.mvt = 0; G.scene = 'field';
 }
 function enterTown(key){
@@ -3086,8 +3094,9 @@ function drawTitle(){
     var hgt = 40 + 26*Math.sin(x2/38) + 14*Math.sin(x2/11);
     ctx.fillRect(x2, H-60-hgt, 4, hgt+60);
   }
-  ctext('AETHERWIND', W/2, 62, '#ffd95e', 26, 800);
-  ctext('a tale of four seals', W/2, 80, '#bcd2e8', 9);
+  ctext('APOCALYPSE', W/2, 50, '#ffd95e', 26, 800);
+  ctext('THE UNVEILING', W/2, 68, '#c2cbd9', 8);
+  ctext('what must soon take place', W/2, 84, '#bcd2e8', 8);
   var opts = titleOptions();
   if(G.titleSel === undefined) G.titleSel = 0;
   panel(46, 102, 228, 84, 0.9);
