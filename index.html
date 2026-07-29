@@ -406,7 +406,8 @@ var HEROES = [
    learn:{1:['chi'],4:['flurry'],7:['cleanse'],10:['fangrush'],12:['cureall'],18:['holy'],24:['revive']}},
   {id:'abel', name:'Abel', title:'Whose Offering Was Regarded', wep:'fist',
    look:{skin:'#e7b98d',hair:'#231c1a',body:'#d8622a',trim:'#2f4b8a',boot:'#3a2a1c',wep:'fist'},
-   base:{hp:104,mp:44,atk:13,def:11,mag:13,spd:12}, grow:{hp:12,mp:6,atk:2.2,def:2,mag:2.4,spd:1.6},
+   base:{hp:104,mp:132,atk:13,def:11,mag:13,spd:12}, grow:{hp:12,mp:18,atk:2.2,def:2,mag:2.4,spd:1.6},
+   cry:'Holy Spirit Activate!',
    learn:{1:['kibolt'],3:['rushcombo'],7:['secondwind'],11:['skyfist'],17:['aetherbeam'],25:['novaburst'],34:['skyfall']},
    forms:[
      {name:'Base form', lv:1, mul:1, cost:0, drain:0, hair:'#231c1a', pal:'none'},
@@ -2595,13 +2596,17 @@ function formList(a){
   a.def.forms.forEach(function(fm, i){ if(a.lv >= fm.lv) out.push(i); });
   return out;
 }
+function transformCry(a){
+  return a.def.cry ? [a.def.name + ': "' + a.def.cry + '"'] : [];
+}
 function transform(a, idx){
   var fm = a.def.forms[idx];
   if(idx === a.form){ return [a.def.name + ' holds ' + fm.name + '.']; }
   if(idx === 0){
     a.form = 0;
     fxAt(a, 'burst', 'none');
-    return [a.def.name + ' powers down.'];
+    fxAt(a, 'ring', 'holy', {life:36});
+    return [a.def.name + ' powers down.'].concat(transformCry(a));
   }
   if(a.mp < fm.cost) return [a.def.name + ' lacks the ki.'];
   a.mp -= fm.cost;
@@ -2609,7 +2614,8 @@ function transform(a, idx){
   fxAt(a, 'burst', fm.pal, {life:40});
   fxAt(a, 'shock', fm.pal, {life:34});
   fxAt(a, 'sparkle', fm.pal, {life:44});
-  return [a.def.name + ' ignites: ' + fm.name + '!', 'Power surges. MP drains each turn.'];
+  fxAt(a, 'ring', 'holy', {life:44});
+  return [a.def.name + ' ignites: ' + fm.name + '!'].concat(transformCry(a));
 }
 function firstLivingEnemy(){
   var b = G.battle;
