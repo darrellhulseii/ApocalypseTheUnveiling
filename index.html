@@ -981,6 +981,46 @@ TOWN_LEGEND['I'] = T_INN; TOWN_LEGEND['S'] = T_SHOP; TOWN_LEGEND['E'] = T_EXIT;
 TOWN_LEGEND['f'] = T_FENCE; TOWN_LEGEND['g'] = T_SIGN; TOWN_LEGEND['w'] = T_WELL;
 TOWN_LEGEND['F'] = T_FLOWER; TOWN_LEGEND['C'] = T_CRYPT;
 
+var NPC_NOSTEP = {};
+NPC_NOSTEP[T_EXIT]=1; NPC_NOSTEP[T_INN]=1; NPC_NOSTEP[T_SHOP]=1; NPC_NOSTEP[T_DOOR]=1;
+NPC_NOSTEP[T_CRYPT]=1; NPC_NOSTEP[T_STAIR]=1; NPC_NOSTEP[T_THRONE]=1; NPC_NOSTEP[T_CHEST]=1;
+NPC_NOSTEP[T_TOWN]=1; NPC_NOSTEP[T_CAVE]=1; NPC_NOSTEP[T_FIR]=1;
+
+function npcCanStand(m, w, h, x, y){
+  if(x < 1 || y < 1 || x >= w - 1 || y >= h - 1) return false;
+  var t = m[y][x];
+  if(BLOCKED[t] || NPC_NOSTEP[t]) return false;
+  return true;
+}
+/* find the longest straight run of open tiles through a point - that becomes the beat */
+function paceRoute(m, w, h, x, y, vertical, maxLen){
+  maxLen = maxLen || 6;
+  var a = {x:x, y:y}, b = {x:x, y:y}, i;
+  for(i=1;i<=maxLen;i++){
+    var nx = vertical ? x : x - i, ny = vertical ? y - i : y;
+    if(!npcCanStand(m, w, h, nx, ny)) break;
+    a = {x:nx, y:ny};
+  }
+  for(i=1;i<=maxLen;i++){
+    var px2 = vertical ? x : x + i, py2 = vertical ? y + i : y;
+    if(!npcCanStand(m, w, h, px2, py2)) break;
+    b = {x:px2, y:py2};
+  }
+  if(a.x === b.x && a.y === b.y) return null;
+  return [a, b];
+}
+function initNpcMotion(n, m, w, h, seed){
+  n.home = {x:n.x, y:n.y};
+  n.mvx = 0; n.mvy = 0; n.mvt = 0; n.dir = 0; n.step = 0; n.pause = 0;
+  n.wait = 20 + (seed % 40);
+  if(n.special || n.recruit){ n.mode = 'still'; return; }
+  var r = new LCG(seed * 977 + 13);
+  var vertical = r.next() < 0.4;
+  var route = paceRoute(m, w, h, n.x, n.y, vertical, 3 + r.int(4));
+  if(!route) route = paceRoute(m, w, h, n.x, n.y, !vertical, 3 + r.int(4));
+  if(route){ n.mode = 'route'; n.route = route; n.ri = 0; }
+  else { n.mode = 'wander'; n.radius = 2; }
+}
 function loadTown(key){
   var t = TOWNS[key], rows = t.rows, h = rows.length, w = rows[0].length;
   var m = [], npcs = [];
@@ -999,6 +1039,10 @@ function loadTown(key){
       } else m[y][x] = TOWN_LEGEND[ch] !== undefined ? TOWN_LEGEND[ch] : T_GRASS;
     }
   }
+  var seedBase = 0;
+  for(var si=0;si<key.length;si++) seedBase += key.charCodeAt(si);
+  npcs.forEach(function(n, i){ initNpcMotion(n, m, w, h, seedBase + i * 31); });
+  addAmbientFolk(m, w, h, npcs, seedBase, key);
   return {kind:'town', key:key, name:t.name, w:w, h:h, m:m, npcs:npcs, data:t};
 }
 
@@ -1014,6 +1058,7 @@ function loadCrypt(){
       } else m[y][x] = CRYPT_LEGEND[ch] !== undefined ? CRYPT_LEGEND[ch] : T_FLOOR;
     }
   }
+  npcs.forEach(function(n, i){ initNpcMotion(n, m, w, h, 4200 + i * 29); });
   return {kind:'dungeon', key:'crypt', floor:1, name:CRYPT.name, w:w, h:h, m:m, npcs:npcs,
           chests:[], spawn:CRYPT.spawn, boss:false, data:{zone:'crypt', tier:3, name:CRYPT.name}};
 }
@@ -1025,6 +1070,39 @@ function enterCrypt(){
 function exitCrypt(){
   if(G.flags.escort && !G.flags.richFree){ courtyardScene(); return; }
   enterTown('rimehold');
+}
+
+var AMBIENT_LINES = [
+  ['Seven letters went out. Ours was read aloud twice.','Nobody has slept right since.'],
+  ['My grandmother says the lamps used to burn brighter here.'],
+  ['I am carrying water. Do not make it interesting.'],
+  ['They say a scroll was found that nobody could open.'],
+  ['If a rider comes down that road I am going inside.'],
+  ['Buy your oil early. Prices go strange when the sky does.'],
+  ['I keep the path swept. It is not much, but it is mine.'],
+  ['Trumpets, they said. I heard nothing. Then I did.'],
+  ['Walk with me if you like. I go around and around.'],
+  ['My name is in a book somewhere. That is the hope of it.']
+];
+function addAmbientFolk(m, w, h, npcs, seed, key){
+  var r = new LCG(seed * 7919 + 101), added = 0, tries = 0;
+  var taken = {};
+  npcs.forEach(function(n){ taken[n.x + ',' + n.y] = 1; });
+  while(added < 4 && tries < 300){
+    tries++;
+    var x = 1 + r.int(w - 2), y = 1 + r.int(h - 2);
+    if(!npcCanStand(m, w, h, x, y)) continue;
+    if(taken[x + ',' + y]) continue;
+    var route = paceRoute(m, w, h, x, y, r.next() < 0.4, 3 + r.int(4));
+    if(!route) continue;
+    taken[x + ',' + y] = 1;
+    var n2 = {x:x, y:y, name:'Townsfolk', lines:AMBIENT_LINES[r.int(AMBIENT_LINES.length)],
+              key:'a' + added, ambient:true};
+    initNpcMotion(n2, m, w, h, seed + 500 + added * 17);
+    n2.mode = 'route'; n2.route = route; n2.ri = 0;
+    npcs.push(n2);
+    added++;
+  }
 }
 
 /* ============================================================
@@ -1439,6 +1517,64 @@ function walkable(x,y){
   return true;
 }
 
+function npcOccupied(x, y, self){
+  var list = G.map.npcs;
+  for(var i=0;i<list.length;i++){
+    var n = list[i];
+    if(n === self) continue;
+    if(n.x === x && n.y === y) return true;
+  }
+  return false;
+}
+function npcStepTo(n, nx, ny){
+  if(!npcCanStand(G.map.m, G.map.w, G.map.h, nx, ny)) return false;
+  if(nx === G.px && ny === G.py) return false;
+  if(npcOccupied(nx, ny, n)) return false;
+  n.dir = (ny > n.y) ? 0 : (ny < n.y ? 1 : (nx < n.x ? 2 : 3));
+  n.mvx = n.x - nx; n.mvy = n.y - ny;
+  n.x = nx; n.y = ny; n.mvt = 1;
+  n._steps = (n._steps || 0) + 1;
+  return true;
+}
+function updateNpcs(){
+  if(!G.map || !G.map.npcs) return;
+  var list = G.map.npcs;
+  for(var i=0;i<list.length;i++){
+    var n = list[i];
+    if(n.mvt === undefined) continue;
+    if(n.mvt > 0){
+      n.mvt -= 0.14;
+      if(n.mvt < 0.001){ n.mvt = 0; n.step = (n.step + 1) % 2; }
+      continue;
+    }
+    if(n.pause > 0){ n.pause--; continue; }
+    if(n.mode === 'still') continue;
+    n.wait--;
+    if(n.wait > 0) continue;
+    n.wait = 22 + rnd(46);
+    if(n.mode === 'route' && n.route){
+      var tgt = n.route[n.ri];
+      if(n.x === tgt.x && n.y === tgt.y){
+        n.ri = (n.ri + 1) % n.route.length;
+        tgt = n.route[n.ri];
+        n.wait = 30 + rnd(40);
+        continue;
+      }
+      var sx = n.x + (tgt.x > n.x ? 1 : (tgt.x < n.x ? -1 : 0));
+      var sy = n.x === tgt.x ? n.y + (tgt.y > n.y ? 1 : (tgt.y < n.y ? -1 : 0)) : n.y;
+      if(!npcStepTo(n, sx, sy)){
+        /* blocked - turn around rather than shove */
+        n.ri = (n.ri + 1) % n.route.length;
+        n.wait = 24 + rnd(30);
+      }
+    } else if(n.mode === 'wander'){
+      var d = [[1,0],[-1,0],[0,1],[0,-1]][rnd(4)];
+      var wx = n.x + d[0], wy = n.y + d[1];
+      if(n.home && (Math.abs(wx - n.home.x) > (n.radius||2) || Math.abs(wy - n.home.y) > (n.radius||2))) continue;
+      npcStepTo(n, wx, wy);
+    }
+  }
+}
 function tryMove(dx,dy){
   G.dir = dy > 0 ? 0 : (dy < 0 ? 1 : (dx < 0 ? 2 : 3));
   var nx = G.px + dx, ny = G.py + dy;
@@ -1527,6 +1663,9 @@ function interact(){
   var tx = G.px+dx, ty = G.py+dy;
   var n = npcAt(tx,ty);
   if(n){
+    n.pause = 150;
+    n.dir = G.dir === 0 ? 1 : (G.dir === 1 ? 0 : (G.dir === 2 ? 3 : 2));
+    n.mvt = 0;
     if(n.special){ runNpcScript(n); return; }
     var lines = n.lines.slice();
     if(n.recruit && !hasHero(n.recruit)){
@@ -1964,9 +2103,15 @@ function drawField(){
   /* npcs */
   G.map.npcs.forEach(function(n){
     var sp = (n.recruit && !hasHero(n.recruit)) ? G.sprites[n.recruit]
-             : G.sprites['npc' + ((n.name.charCodeAt(0) + n.x + n.y) % NPC_LOOKS.length)];
-    var f = Math.floor(G.tick/28) % 2;
-    ctx.drawImage(sp, (0*2+f)*16, 0, 16, 16, Math.round(n.x*TS-camX), Math.round(n.y*TS-camY-4), 16, 16);
+             : G.sprites['npc' + ((n.name.charCodeAt(0) + (n.home ? n.home.x : n.x) + (n.home ? n.home.y : n.y)) % NPC_LOOKS.length)];
+    var mvt = n.mvt || 0, mvx = n.mvx || 0, mvy = n.mvy || 0;
+    var nx = Math.round((n.x + mvx*mvt)*TS - camX);
+    var ny = Math.round((n.y + mvy*mvt)*TS - camY - 4);
+    var nf = mvt > 0 ? (Math.floor(G.tick/6) % 2) : (n.step || 0);
+    var nd = n.dir || 0;
+    ctx.fillStyle = 'rgba(0,0,0,0.22)';
+    ctx.beginPath(); ctx.ellipse(nx+8, ny+16, 5, 2, 0, 0, 6.3); ctx.fill();
+    ctx.drawImage(sp, (nd*2+nf)*16, 0, 16, 16, nx, ny, 16, 16);
   });
   /* player + trailing party */
   var lead = G.party[0];
@@ -3827,6 +3972,7 @@ function updateBattle(){
 function update(){
   G.tick++;
   if(G.scene === 'field'){
+    updateNpcs();
     if(G.mvt > 0){ G.mvt -= (G.flags.mare && G.map.kind === 'world') ? 0.34 : 0.2; if(G.mvt < 0.001) G.mvt = 0; }
     else {
       repeatT--;
