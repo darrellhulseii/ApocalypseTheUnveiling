@@ -6,7 +6,13 @@
 <meta name="theme-color" content="#0b0f18">
 <title>Apocalypse</title>
 <style>
-  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  *{box-sizing:border-box;
+    -webkit-tap-highlight-color:rgba(0,0,0,0);
+    -webkit-touch-callout:none;
+    -webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;
+    -webkit-user-drag:none;}
+  *::selection{background:transparent;color:inherit;}
+  *::-moz-selection{background:transparent;color:inherit;}
   html,body{margin:0;padding:0;height:100%;background:#05070c;overflow:hidden;
     font-family:"Courier New",monospace;color:#dfe5ee;touch-action:none;user-select:none;
     font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;}
@@ -15,9 +21,11 @@
     background:radial-gradient(circle at 50% 35%,#141b2b 0%,#05070c 75%);padding:6px;}
   #stage{position:relative;display:block;line-height:0;
     border:2px solid #2a3346;box-shadow:0 0 0 2px #05070c,0 8px 28px rgba(0,0,0,.7);background:#05070c;}
-  #screen{image-rendering:pixelated;image-rendering:crisp-edges;display:block;background:#05070c;}
+  #screen{image-rendering:pixelated;image-rendering:crisp-edges;display:block;background:#05070c;
+    -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-user-drag:none;
+    pointer-events:none;}
   #text{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;
-    image-rendering:auto;}
+    image-rendering:auto;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
   #pad{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;
     padding:10px 16px calc(14px + env(safe-area-inset-bottom));gap:10px;background:#080b12;
     border-top:1px solid #1b2231;}
@@ -25,7 +33,11 @@
   .btn{display:flex;align-items:center;justify-content:center;background:#1e2636;color:#cfd8e6;
     border:1px solid #3a465e;border-radius:8px;cursor:pointer;
     font:700 17px "Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-    transition:background .06s,transform .06s;}
+    transition:background .06s,transform .06s;
+    touch-action:none;-webkit-touch-callout:none;
+    -webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}
+  .btn::before{content:attr(data-l);pointer-events:none;
+    -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
   .btn.on{background:#3a4a68;color:#f0d05a;transform:translateY(1px);}
   .round{width:58px;height:58px;border-radius:50%;font-size:19px;}
   .acts{display:flex;align-items:center;gap:10px;}
@@ -39,14 +51,14 @@
   <div id="wrap"><div id="stage"><canvas id="screen" width="320" height="240"></canvas><canvas id="text"></canvas></div></div>
   <div id="pad">
     <div class="dpad">
-      <div class="btn sp"></div><div class="btn" id="btn-up">&#9650;</div><div class="btn sp"></div>
-      <div class="btn" id="btn-left">&#9664;</div><div class="btn sp"></div><div class="btn" id="btn-right">&#9654;</div>
-      <div class="btn sp"></div><div class="btn" id="btn-down">&#9660;</div><div class="btn sp"></div>
+      <div class="btn sp"></div><div class="btn" id="btn-up" data-l="&#9650;"></div><div class="btn sp"></div>
+      <div class="btn" id="btn-left" data-l="&#9664;"></div><div class="btn sp"></div><div class="btn" id="btn-right" data-l="&#9654;"></div>
+      <div class="btn sp"></div><div class="btn" id="btn-down" data-l="&#9660;"></div><div class="btn sp"></div>
     </div>
-    <div class="btn" id="btn-m">MENU</div>
+    <div class="btn" id="btn-m" data-l="MENU"></div>
     <div class="acts">
-      <div class="btn round" id="btn-b">B</div>
-      <div class="btn round" id="btn-a">A</div>
+      <div class="btn round" id="btn-b" data-l="B"></div>
+      <div class="btn round" id="btn-a" data-l="A"></div>
     </div>
   </div>
 </div>
@@ -84,7 +96,7 @@ var T_WATER=0,T_GRASS=1,T_FOREST=2,T_MOUNT=3,T_SAND=4,T_SNOW=5,T_ROAD=6,T_LAVA=7
     T_COBBLE=36,T_BRICKPATH=37,T_STONEWALL=38,T_WOODFLOOR=39,T_MARKET=40,T_LAMP=41,
     T_FOUNTAIN=42,T_STATUE=43,T_HEDGE=44,T_PLANTER=45,T_CRATE=46,T_BARREL=47,
     T_STEPS=48,T_GARDEN=49,T_AWNING=50,T_ROOFBLUE=51,T_ROOFGREEN=52,
-    T_MARSH=53,T_RUINS=54,T_OASIS=55,T_CLIFF=56,T_ORCHARD=57,T_FARM=58,T_DOCK=59;
+    T_MARSH=53,T_RUINS=54,T_OASIS=55,T_CLIFF=56,T_ORCHARD=57,T_FARM=58,T_DOCK=59,T_BEACH=60;
 
 function noise(g,n,cols,seed){
   var r = new LCG(seed);
@@ -195,10 +207,14 @@ function buildTiles(){
   T(T_MARSH,function(x){ px(x,0,0,TS,TS,'#4a5f3a'); noise(x,24,['#3a4f2c','#5a7048'],103);
     px(x,2,5,5,2,'#3a5a4a'); px(x,9,10,5,2,'#3a5a4a');
     px(x,4,2,1,4,'#6b8a4a'); px(x,11,4,1,5,'#6b8a4a'); px(x,7,11,1,4,'#6b8a4a'); });
-  T(T_RUINS,function(x){ px(x,0,0,TS,TS,'#4c9a3a'); noise(x,14,['#59ad44'],107);
-    px(x,2,4,4,11,'#9a968d'); px(x,2,3,4,2,'#b4b0a7');
-    px(x,9,7,4,8,'#8a867d'); px(x,9,6,4,2,'#a49f96');
-    px(x,6,12,4,3,'#7c786f'); });
+  T(T_RUINS,function(x){ px(x,0,0,TS,TS,'#4c9a3a'); noise(x,16,['#59ad44','#3f8531'],107);
+    px(x,1,13,13,2,'rgba(20,34,20,0.34)');
+    px(x,2,6,3,8,'#8f8b82'); px(x,2,5,3,1,'#a8a49b'); px(x,2,10,3,1,'#75716a');
+    px(x,7,9,5,5,'#848078'); px(x,7,8,5,1,'#9d9990');
+    px(x,12,11,2,3,'#75716a');
+    px(x,5,12,2,2,'#6d6960');
+    px(x,3,7,1,4,'#6b675f'); px(x,9,10,1,3,'#6b675f');
+    px(x,6,4,1,2,'#3f8531'); });
   T(T_OASIS,function(x){ px(x,0,0,TS,TS,'#dfc888'); px(x,3,6,10,8,'#2a6bb5');
     px(x,4,7,8,6,'#3a80cc'); px(x,1,1,3,6,'#5c3d21');
     px(x,0,0,7,3,'#3f8f34'); px(x,10,2,5,2,'#4fa844'); px(x,12,3,2,5,'#5c3d21'); });
@@ -209,12 +225,18 @@ function buildTiles(){
     px(x,3,10,2,5,'#5c3d21'); px(x,1,4,7,7,'#2f6b28'); px(x,2,5,5,5,'#3f8f34');
     px(x,3,6,2,2,'#e0503a'); px(x,11,11,2,4,'#5c3d21'); px(x,9,6,6,6,'#2f6b28');
     px(x,10,7,4,4,'#3f8f34'); px(x,12,8,2,2,'#e0503a'); });
-  T(T_FARM,function(x){ px(x,0,0,TS,TS,'#7c5730'); noise(x,14,['#8a6238','#6b4a28'],127);
-    for(var f1=0;f1<4;f1++){ px(x,0,f1*4+1,TS,1,'#5a3d22'); px(x,1,f1*4,3,3,'#d8c463');
-      px(x,6,f1*4,3,3,'#c8b453'); px(x,11,f1*4,3,3,'#d8c463'); } });
+  T(T_FARM,function(x){ px(x,0,0,TS,TS,'#6b4d2c'); noise(x,22,['#77563220','#5c4126'],127);
+    for(var f1=0;f1<5;f1++){
+      px(x,0,f1*3+1,TS,1,'#5a3d22');
+      px(x,0,f1*3+2,TS,1,'#7a5834');
+      px(x,2+(f1%2)*3,f1*3,2,1,'#5f8a3e');
+      px(x,9+(f1%2)*2,f1*3,2,1,'#6d9a46');
+    } });
   T(T_DOCK,function(x){ px(x,0,0,TS,TS,'#2a6bb5'); noise(x,10,['#3a80cc'],131);
     px(x,0,3,TS,10,'#8a5f36'); for(var d1=0;d1<TS;d1+=5) px(x,d1,3,1,10,'#5c3d21');
     px(x,0,3,TS,1,'#a8763f'); px(x,0,12,TS,1,'#5c3d21'); });
+  T(T_BEACH,function(x){ px(x,0,0,TS,TS,'#e8d7a4'); noise(x,20,['#f2e4bb','#d4bf88'],137);
+    px(x,3,6,2,1,'#c9b07a'); px(x,10,11,3,1,'#c9b07a'); px(x,6,2,1,1,'#b8a06a'); });
   T(T_WELL,function(x){ px(x,0,0,TS,TS,'#4c9a3a'); px(x,3,6,10,8,'#8a867d'); px(x,5,8,6,5,'#1d2f4a'); px(x,2,4,12,2,'#6e6a63'); });
 }
 var TILE_ALT = {};
@@ -228,6 +250,135 @@ function buildAltTiles(){
   px(b.x,0,2,TS,12,'#6b4526'); for(var i=0;i<TS;i+=4) px(b.x,i,2,1,12,'#4a2f18');
   TILE_ALT.bridgeBurnt = b.c;
 }
+/* ============================================================
+   OVERWORLD DRESSING - variants, shorelines, cliffs, landmarks
+   ============================================================ */
+var TILEV = {}, WATER_FRAMES = [], BLOOD_FRAMES = [], FOAM = {}, CLIFFFACE = null,
+    SNOWCAP = null, LANDMARK = {};
+function hashXY(x, y){
+  var h = (x * 374761393 + y * 668265263) ^ 0x5bf03635;
+  h = (h ^ (h >> 13)) * 1274126177;
+  return (h ^ (h >> 16)) >>> 0;
+}
+function buildOverworldArt(){
+  var i;
+  function V(id, n, fn){
+    var arr = [];
+    for(var k=0;k<n;k++){ var g = mk(TS,TS); fn(g.x, k); arr.push(g.c); }
+    TILEV[id] = arr;
+  }
+  /* grass: four cuts so fields stop looking stamped */
+  V(T_GRASS, 4, function(x, k){
+    px(x,0,0,TS,TS,'#4c9a3a');
+    noise(x, 22 + k*4, ['#59ad44','#3f8531','#54a33e'], 7 + k*53);
+    if(k===0){ px(x,3,10,2,1,'#6dc253'); px(x,11,4,2,1,'#6dc253'); }
+    if(k===1){ px(x,6,6,1,3,'#68bb4e'); px(x,7,5,1,1,'#7ccb60'); px(x,2,13,3,1,'#3d7f2e'); }
+    if(k===2){ px(x,12,9,2,2,'#8a8378'); px(x,4,3,1,1,'#8a8378'); }
+    if(k===3){ px(x,8,11,2,1,'#6dc253'); px(x,9,10,1,1,'#7ccb60'); px(x,1,5,2,1,'#3d7f2e'); }
+  });
+  /* forest: canopy clusters with a shaded base, like a wood seen from above */
+  V(T_FOREST, 4, function(x, k){
+    px(x,0,0,TS,TS,'#3f8531');
+    noise(x,14,['#37752a'],11+k*31);
+    function crown(ox,oy,r0,lit){
+      px(x,ox-1,oy+r0-1,r0*2+2,3,'#1f4a18');
+      px(x,ox,oy,r0*2,r0*2,'#2f6b28');
+      px(x,ox+1,oy-1,r0*2-2,r0*2,lit);
+      px(x,ox+2,oy,2,2,'#63c04c');
+    }
+    if(k===0){ crown(0,1,4,'#3f8f34'); crown(8,4,4,'#357c2c'); }
+    if(k===1){ crown(2,0,4,'#3f8f34'); crown(9,7,3,'#357c2c'); crown(0,8,3,'#3a8730'); }
+    if(k===2){ crown(1,3,5,'#43963a'); crown(10,1,3,'#357c2c'); }
+    if(k===3){ crown(4,2,5,'#3f8f34'); crown(0,9,3,'#357c2c'); crown(11,9,3,'#3a8730'); }
+  });
+  V(T_SAND, 3, function(x,k){ px(x,0,0,TS,TS,'#dfc888'); noise(x,20+k*4,['#ead9a2','#cbb173'],13+k*17); });
+  V(T_BEACH, 3, function(x,k){ px(x,0,0,TS,TS,'#e8d7a4'); noise(x,18,['#f2e4bb','#d4bf88'],19+k*23);
+    if(k===1){ px(x,4,7,3,1,'#c9b07a'); } if(k===2){ px(x,9,3,2,1,'#c9b07a'); px(x,3,12,2,1,'#c9b07a'); } });
+  V(T_SNOW, 3, function(x,k){ px(x,0,0,TS,TS,'#e8eef5'); noise(x,14+k*4,['#ffffff','#cdd8e4'],23+k*29); });
+  V(T_HILL, 3, function(x,k){
+    px(x,0,0,TS,TS,'#4c9a3a');
+    px(x,1,5+k,14,10-k,'#417f33'); px(x,3,3+k,10,6,'#4f9a3c');
+    px(x,2,13,12,3,'#2f5f24'); noise(x,10,['#5cb046'],29+k*13);
+  });
+  /* water: three drifting frames */
+  function waterFrame(cols){
+    return function(x, k){
+      px(x,0,0,TS,TS,cols[0]);
+      noise(x,16,[cols[1],cols[2]],31+k*37);
+      var off = k * 5;
+      px(x,(2+off)%TS,4,5,1,cols[3]); px(x,(9+off)%TS,10,4,1,cols[3]);
+      px(x,(5+off)%TS,13,3,1,cols[1]);
+    };
+  }
+  for(i=0;i<3;i++){ var g1 = mk(TS,TS); waterFrame(['#2a6bb5','#3a80cc','#22589a','#79b7ee'])(g1.x,i); WATER_FRAMES.push(g1.c); }
+  for(i=0;i<3;i++){ var g2 = mk(TS,TS); waterFrame(['#7a1a1a','#9c2323','#5c1212','#c85a4a'])(g2.x,i); BLOOD_FRAMES.push(g2.c); }
+  /* shoreline foam, one per edge */
+  function foam(dir){
+    var g = mk(TS,TS), x = g.x, j;
+    for(j=0;j<TS;j++){
+      var w0 = (j % 5 === 0) ? 3 : 2;
+      if(dir === 'n'){ px(x,j,0,1,w0,'#bfe4f7'); px(x,j,w0,1,1,'#8fc8ea'); }
+      if(dir === 's'){ px(x,j,TS-w0,1,w0,'#bfe4f7'); px(x,j,TS-w0-1,1,1,'#8fc8ea'); }
+      if(dir === 'w'){ px(x,0,j,w0,1,'#bfe4f7'); px(x,w0,j,1,1,'#8fc8ea'); }
+      if(dir === 'e'){ px(x,TS-w0,j,w0,1,'#bfe4f7'); px(x,TS-w0-1,j,1,1,'#8fc8ea'); }
+    }
+    return g.c;
+  }
+  ['n','s','e','w'].forEach(function(d){ FOAM[d] = foam(d); });
+  /* the front face of a cliff, drawn where rock meets open ground */
+  (function(){
+    var g = mk(TS, TS), x = g.x;
+    px(x,0,0,TS,6,'#5c584f');
+    px(x,0,0,TS,1,'#8a867d');
+    px(x,0,6,TS,7,'#6e6a63');
+    for(var c=0;c<TS;c+=4) px(x,c,2,1,10,'#4a463f');
+    px(x,0,13,TS,3,'#3d3a34');
+    px(x,2,7,2,5,'#7c786f'); px(x,9,8,2,4,'#7c786f');
+    CLIFFFACE = g.c;
+  })();
+  (function(){
+    var g = mk(TS, TS), x = g.x;
+    px(x,2,0,12,4,'#f2f6fb'); px(x,4,4,8,2,'#dfe8f2');
+    px(x,6,6,4,1,'#cfdcea'); px(x,1,1,3,2,'#f8fbff');
+    SNOWCAP = g.c;
+  })();
+  /* landmarks that stand taller than their tile */
+  (function(){
+    var g = mk(32, 32), x = g.x;
+    px(x,4,22,24,9,'#7c7469'); px(x,4,22,24,2,'#9a9288');
+    px(x,6,12,20,11,'#c8b48c'); px(x,6,12,20,2,'#ddc9a0');
+    px(x,2,8,7,15,'#b8a680'); px(x,23,8,7,15,'#b8a680');
+    px(x,1,5,9,4,'#8a7c5c'); px(x,22,5,9,4,'#8a7c5c');
+    px(x,2,0,7,6,'#3a5f9c'); px(x,23,0,7,6,'#3a5f9c');
+    px(x,4,0,3,3,'#5580c4'); px(x,25,0,3,3,'#5580c4');
+    px(x,12,4,8,9,'#c8b48c'); px(x,11,0,10,5,'#a83a30'); px(x,13,1,6,2,'#c9564a');
+    px(x,14,16,4,7,'#4a3626'); px(x,15,17,2,5,'#6b4526');
+    px(x,8,15,3,3,'#7ec8f5'); px(x,21,15,3,3,'#7ec8f5'); px(x,14,8,4,3,'#7ec8f5');
+    px(x,4,29,24,3,'rgba(0,0,0,0.28)');
+    LANDMARK.town = g.c;
+  })();
+  (function(){
+    var g = mk(24, 24), x = g.x;
+    px(x,1,6,22,16,'#7c766c'); px(x,1,6,22,3,'#9a948a');
+    px(x,3,2,18,6,'#8a847a'); px(x,6,0,12,4,'#9a948a');
+    px(x,7,10,10,12,'#171410'); px(x,8,8,8,4,'#0d0b09');
+    px(x,5,18,3,4,'#5c574f'); px(x,16,17,4,5,'#5c574f');
+    px(x,2,22,20,2,'rgba(0,0,0,0.28)');
+    LANDMARK.cave = g.c;
+  })();
+  (function(){
+    var g = mk(24, 28), x = g.x;
+    px(x,10,20,4,8,'#4a3320');
+    px(x,4,16,16,6,'#1e4a1a'); px(x,5,15,14,5,'#245a20');
+    px(x,6,10,12,7,'#1e4a1a'); px(x,7,9,10,6,'#2a6b26');
+    px(x,8,4,8,7,'#1e4a1a'); px(x,9,3,6,6,'#2a6b26');
+    px(x,10,0,4,5,'#245a20');
+    px(x,11,13,2,2,'#0a0a0a'); px(x,10,12,1,1,'#e8e4d8'); px(x,13,12,1,1,'#e8e4d8');
+    px(x,6,26,12,2,'rgba(0,0,0,0.26)');
+    LANDMARK.fir = g.c;
+  })();
+}
+
 var BLOCKED = {};
 BLOCKED[T_WATER]=1; BLOCKED[T_MOUNT]=1; BLOCKED[T_LAVA]=1; BLOCKED[T_WALL]=1;
 BLOCKED[T_TREE]=1; BLOCKED[T_ROOF]=1; BLOCKED[T_FENCE]=1; BLOCKED[T_SIGN]=1; BLOCKED[T_WELL]=1;
@@ -276,6 +427,44 @@ function makeWalker(p){
     }
   }
   return sheet.c;
+}
+
+var BANDANA = {band:'#2f6bd6', lit:'#5f9aee', dark:'#1c4691', knot:'#3f7ce0'};
+function gunKindOf(h){
+  if(!h || h.isE) return null;
+  var w = h.gear && h.gear.wep;
+  var g = w && GEAR[w];
+  if(!g || !g.look) return null;
+  return (g.look.kind === 'pistol' || g.look.kind === 'rifle') ? g.look.kind : null;
+}
+/* the tails flutter, so they are drawn live rather than baked into the sprite */
+function drawBandanaTails(cx, cy, s, tick, back){
+  var i, seg = 4, dirx = back < 0 ? -1 : 1;
+  ctx.save();
+  for(i=0;i<seg;i++){
+    var t = i / seg;
+    var wave = Math.sin(tick / 5 - i * 0.9) * (1.4 + i * 1.1);
+    var x2 = cx + dirx * (2 + i * 3.1) * s;
+    var y2 = cy + (wave + i * 0.7) * s;
+    var w2 = Math.max(1, (3.4 - i * 0.6) * s);
+    var h2 = Math.max(1, (2.6 - i * 0.4) * s);
+    ctx.fillStyle = i % 2 ? BANDANA.band : BANDANA.lit;
+    ctx.fillRect(Math.round(x2 - w2/2), Math.round(y2 - h2/2), Math.round(w2), Math.round(h2));
+    if(i < 2){
+      ctx.fillStyle = BANDANA.dark;
+      ctx.fillRect(Math.round(x2 - w2/2), Math.round(y2 + h2/2), Math.round(w2), Math.max(1, Math.round(s)));
+    }
+  }
+  /* a second, shorter tail */
+  for(i=0;i<3;i++){
+    var wv2 = Math.sin(tick / 4.2 - i * 1.1 + 1.6) * (1.2 + i);
+    var bx = cx + dirx * (2 + i * 2.7) * s;
+    var by = cy + (wv2 + 2.4 + i * 0.9) * s;
+    ctx.fillStyle = i % 2 ? BANDANA.dark : BANDANA.band;
+    ctx.fillRect(Math.round(bx - 1.2 * s), Math.round(by - 1 * s),
+                 Math.max(1, Math.round(2.4 * s)), Math.max(1, Math.round(1.8 * s)));
+  }
+  ctx.restore();
 }
 
 /* weapon art, drawn into the battler at the right hand */
@@ -363,6 +552,14 @@ function makeHeroBattler(p, weaponLook){
   px(x,11,4,10,10,skin);
   px(x,10,2,12,6,hair); px(x,10,2,12,2,shade(hair,34)); px(x,9,6,2,6,hair); px(x,21,6,2,6,hair);
   px(x,13,9,2,2,'#1b1b22'); px(x,18,9,2,2,'#1b1b22'); px(x,14,12,4,1,shade(skin,-40));
+  if(weaponLook && (weaponLook.kind === 'pistol' || weaponLook.kind === 'rifle')){
+    px(x,9,5,14,3,BANDANA.band);
+    px(x,9,5,14,1,BANDANA.lit);
+    px(x,9,8,14,1,BANDANA.dark);
+    px(x,11,6,2,1,BANDANA.lit);
+    px(x,7,6,3,4,BANDANA.knot);
+    px(x,7,6,3,1,BANDANA.lit);
+  }
   if(weaponLook) drawWeapon(x, weaponLook, skin);
   else if(p.wep==='sword'){ px(x,26,2,2,20,'#d7dde8'); px(x,25,2,1,20,'#f2f6fb'); px(x,24,21,6,2,'#a08040'); px(x,26,23,2,5,'#6b4526'); }
   else if(p.wep==='staff'){ px(x,26,1,2,28,'#8a5c33'); px(x,24,0,6,5,trim); px(x,25,1,4,3,shade(trim,50)); }
@@ -611,9 +808,9 @@ var GEAR = {
   w_wrap:   {look:{kind:'knuckle',blade:'#e8e0cc',grip:'#8a6a3a',accent:'#c8b48c'}, name:'Hand Wraps', slot:'wep', atk:5, mag:3, price:200, who:['simeon'], desc:'Simple linen, well tied.'},
   w_iron_f: {look:{kind:'knuckle',blade:'#9a9aa8',grip:'#4a4a52',accent:'#c8ced8'}, name:'Iron Knuckles', slot:'wep', atk:15, mag:6, price:960, who:['simeon'], desc:'Weighted for the strike.'},
   w_lotus:  {look:{kind:'claw',blade:'#ffd95e',grip:'#8a3a30',accent:'#ffe9a0',glow:'#ffe9a0'}, name:'Lotus Gauntlets', slot:'wep', atk:28, mag:14, price:2750, who:['simeon'], desc:'Calm hands, hard palms.'},
-  w_six:    {look:{kind:'pistol',blade:'#c8ced8',grip:'#6b4526',accent:'#8a8a99'}, name:'Six-Shooter', slot:'wep', atk:8, price:230, who:['jehu'], desc:'Worn grip, true barrel.'},
-  w_long:   {look:{kind:'rifle',blade:'#c8ced8',grip:'#5c3d21',accent:'#a8a8b8'}, name:'Longshot', slot:'wep', atk:18, price:980, who:['jehu'], desc:'Kicks like a mule.'},
-  w_ash:    {look:{kind:'rifle',blade:'#e8e8f2',grip:'#2a2a30',accent:'#ff8a3a',glow:'#ff9a4a'}, name:'Ashmaker', slot:'wep', atk:33, price:2900, who:['jehu'], desc:'Leaves nothing standing.'},
+  w_six:    {look:{kind:'pistol',blade:'#c8ced8',grip:'#6b4526',accent:'#8a8a99'}, name:'Six-Shooter', slot:'wep', atk:8, price:230, desc:'Worn grip, true barrel. Anyone can learn it.'},
+  w_long:   {look:{kind:'rifle',blade:'#c8ced8',grip:'#5c3d21',accent:'#a8a8b8'}, name:'Longshot', slot:'wep', atk:18, price:980, desc:'Kicks like a mule. Anyone can learn it.'},
+  w_ash:    {look:{kind:'rifle',blade:'#e8e8f2',grip:'#2a2a30',accent:'#ff8a3a',glow:'#ff9a4a'}, name:'Ashmaker', slot:'wep', atk:33, price:2900, desc:'Leaves nothing standing. Anyone can learn it.'},
   /* expanded armoury */
   w_axe:    {look:{kind:'axe',blade:'#c8a06a',grip:'#5c3d21',accent:'#8a6a3a'}, name:'Bronze Axe', slot:'wep', atk:11, price:520, who:['gideon'], desc:'Heavy, and it does not care about mail.'},
   w_spear:  {look:{kind:'spear',blade:'#dfe4ec',grip:'#7d5530',accent:'#a08040'}, name:'Watchman Spear', slot:'wep', atk:13, spd:3, price:760, who:['gideon'], desc:'Reach, and a watchman who knows how to use it.'},
@@ -624,7 +821,7 @@ var GEAR = {
   w_cross:  {look:{kind:'crossbow',blade:'#c8ced8',grip:'#5c3d21',accent:'#8a6a3a'}, name:'Crossbow of the First Seal', slot:'wep', atk:21, price:1400, who:['jonathan'], desc:'A bow given, and a crown, and he went out conquering.'},
   w_measure:{look:{kind:'rod',blade:'#ffd95e',grip:'#8a6a3a',accent:'#fff4c0'}, name:'Measuring Rod', slot:'wep', atk:5, mag:22, price:1500, who:['miriam'], desc:'Rise and measure the temple, the altar, and those who worship.'},
   w_whip:   {look:{kind:'whip',blade:'#c86a4a',grip:'#4a3a2a',accent:'#8a4a2a'}, name:'Cord of Three', slot:'wep', atk:16, spd:6, price:1100, who:['simeon'], desc:'Braided, and not quickly broken.'},
-  w_hunter: {look:{kind:'rifle',blade:'#b8b8c8',grip:'#4a3a2a',accent:'#8a8a99'}, name:'Long Hunter', slot:'wep', atk:25, spd:4, price:1600, who:['jehu'], desc:'He drives furiously, and he shoots the same way.'},
+  w_hunter: {look:{kind:'rifle',blade:'#b8b8c8',grip:'#4a3a2a',accent:'#8a8a99'}, name:'Long Hunter', slot:'wep', atk:25, spd:4, price:1600, desc:'He drives furiously. So can you.'},
   w_emberwrap:{look:{kind:'knuckle',blade:'#ff9a4a',grip:'#8a3a20',accent:'#ffd08a',glow:'#ff7a2a'}, name:'Ember Wraps', slot:'wep', atk:9, mag:6, price:340, who:['abel'], desc:'Linen that has been through more fire than linen should.'},
   w_offering:{look:{kind:'claw',blade:'#e8e0cc',grip:'#7a4a2a',accent:'#ffd95e',glow:'#ffe9a0'}, name:'Gauntlets of the Offering', slot:'wep', atk:19, mag:14, price:1450, who:['abel'], desc:'He brought the best of it, and it was regarded.'},
   w_lionpaw:{look:{kind:'claw',blade:'#ffd95e',grip:'#8a2f2f',accent:'#fff4c0',glow:'#ffd95e'}, name:'Lion of Judah Gauntlets', slot:'wep', atk:32, mag:24, price:3200, who:['abel'], desc:'The Lion of the tribe of Judah has conquered. He can open it.'},
@@ -864,16 +1061,33 @@ function buildWorld(){
     var t = m[y][x], n = r.next();
     if(t === T_GRASS){
       var deep = inEllipse(x,y,34,28,16,12) || inEllipse(x,y,26,56,14,11) || inEllipse(x,y,52,58,12,9);
-      if(deep && n < 0.62) m[y][x] = T_FOREST;
-      else if(n < 0.10) m[y][x] = T_FOREST;
-      else if(n < 0.14) m[y][x] = T_HILL;
-      else if(n < 0.17) m[y][x] = T_FLOWER;
+      if(deep && n < 0.80) m[y][x] = T_FOREST;
+      else if(n < 0.07) m[y][x] = T_FOREST;
+      else if(n < 0.12) m[y][x] = T_HILL;
+      else if(n < 0.15) m[y][x] = T_FLOWER;
     } else if(t === T_SAND){
       if(n < 0.14) m[y][x] = T_DUNE; else if(n < 0.18) m[y][x] = T_MOUNT;
     } else if(t === T_SNOW){
       if(n < 0.12) m[y][x] = T_ICE; else if(n < 0.20) m[y][x] = T_MOUNT;
     }
   }
+  /* let the woods clump the way a drawn map would show them */
+  (function(){
+    var pass, cx, cy;
+    for(pass=0;pass<2;pass++){
+      var snapshot = [];
+      for(cy=0;cy<WH;cy++) snapshot.push(m[cy].slice());
+      for(cy=1;cy<WH-1;cy++) for(cx=1;cx<WW-1;cx++){
+        var here = snapshot[cy][cx];
+        if(here !== T_GRASS && here !== T_FOREST) continue;
+        var n2 = 0, dxs = [-1,0,1,-1,1,-1,0,1], dys = [-1,-1,-1,0,0,1,1,1];
+        for(var q=0;q<8;q++) if(snapshot[cy+dys[q]][cx+dxs[q]] === T_FOREST) n2++;
+        if(here === T_GRASS && n2 >= 5) m[cy][cx] = T_FOREST;
+        else if(here === T_FOREST && n2 <= 1) m[cy][cx] = T_GRASS;
+      }
+    }
+  })();
+
   /* mountain ranges */
   function ridge(x0,y0,x1,y1,thick){
     var steps = Math.max(Math.abs(x1-x0), Math.abs(y1-y0));
@@ -885,7 +1099,8 @@ function buildWorld(){
       }
     }
   }
-  ridge(46,10,52,30,1); ridge(52,30,64,34,1); ridge(30,64,52,70,1); ridge(84,24,90,50,1);
+  ridge(46,10,52,30,2); ridge(52,30,64,34,2); ridge(30,64,52,70,1); ridge(84,24,90,50,2);
+  ridge(12,26,22,34,1); ridge(64,54,74,60,1);
   /* rivers */
   function river(x0,y0,len,dir){
     var cx = x0, cy = y0;
@@ -898,6 +1113,21 @@ function buildWorld(){
   river(30,20,26,1); river(58,54,20,1);
   world = {w:WW,h:WH,m:m,name:'The Seven Lands'};
 
+  /* sand fringe wherever land meets water */
+  (function(){
+    var br = new LCG(24680), bx, by;
+    var beach = [];
+    for(by=1;by<WH-1;by++) for(bx=1;bx<WW-1;bx++){
+      var tb = m[by][bx];
+      if(tb === T_WATER || tb === T_MOUNT || tb === T_LAVA) continue;
+      if(m[by-1][bx] === T_WATER || m[by+1][bx] === T_WATER ||
+         m[by][bx-1] === T_WATER || m[by][bx+1] === T_WATER){
+        if(br.next() < 0.88) beach.push([bx,by]);
+      }
+    }
+    beach.forEach(function(b){ m[b[1]][b[0]] = T_BEACH; });
+  })();
+
   /* regional detail before the roads are cut */
   (function(){
     var dr = new LCG(515151), dx, dy;
@@ -907,13 +1137,29 @@ function buildWorld(){
       if(inEllipse(dx,dy,24,64,13,9) && dr.next() < 0.55) m[dy][dx] = T_MARSH;
       else if(inEllipse(dx,dy,54,20,10,7) && dr.next() < 0.42) m[dy][dx] = T_MARSH;
     }
-    /* orchards and farmland ring the settled middle */
+    /* orchards soften the settled middle - no scattered cropland */
     for(dy=0;dy<WH;dy++) for(dx=0;dx<WW;dx++){
       if(m[dy][dx] !== T_GRASS) continue;
-      if(inEllipse(dx,dy,28,44,12,9)){ if(dr.next() < 0.24) m[dy][dx] = T_FARM; else if(dr.next() < 0.16) m[dy][dx] = T_ORCHARD; }
-      else if(inEllipse(dx,dy,48,50,11,8)){ if(dr.next() < 0.20) m[dy][dx] = T_ORCHARD; }
-      else if(dr.next() < 0.012) m[dy][dx] = T_RUINS;
+      if(inEllipse(dx,dy,28,44,11,8) && dr.next() < 0.20) m[dy][dx] = T_ORCHARD;
+      else if(inEllipse(dx,dy,48,50,10,7) && dr.next() < 0.18) m[dy][dx] = T_ORCHARD;
     }
+    /* a handful of real ruin sites instead of stones littered everywhere */
+    (function(){
+      var sites = [[38,36],[66,28],[22,54],[84,44],[52,62]];
+      sites.forEach(function(sp){
+        var placed = 0;
+        for(var rad=0; rad<5 && placed<4; rad++){
+          for(var oy=-rad;oy<=rad && placed<4;oy++) for(var ox=-rad;ox<=rad && placed<4;ox++){
+            var rx = sp[0]+ox, ry = sp[1]+oy;
+            if(rx<2||ry<2||rx>=WW-2||ry>=WH-2) continue;
+            var here = m[ry][rx];
+            if(here !== T_GRASS && here !== T_HILL && here !== T_FOREST) continue;
+            m[ry][rx] = T_RUINS;
+            placed++;
+          }
+        }
+      });
+    })();
     /* oases in the deep sand */
     for(dy=0;dy<WH;dy++) for(dx=0;dx<WW;dx++)
       if(m[dy][dx] === T_SAND && dr.next() < 0.006) m[dy][dx] = T_OASIS;
@@ -976,6 +1222,7 @@ function buildWorld(){
 function worldZone(x,y){
   var t = world.m[y][x];
   if(G.flags && (G.flags.locusts || G.flags.cavalry) && Math.random() < 0.45) return 'abyss';
+  if(t === T_BEACH) return 'plains';
   if(t === T_MARSH) return 'crypt';
   if(t === T_ORCHARD || t === T_FARM) return 'plains';
   if(t === T_RUINS || t === T_CLIFF) return 'cave';
@@ -2471,6 +2718,60 @@ function openShop(){
 /* ============================================================
    RENDERING - FIELD
    ============================================================ */
+function worldTileImage(t, x, y){
+  if(t === T_WATER){
+    var frames = (G.flags && (G.flags.trumpets || 0) >= 2) ? BLOOD_FRAMES : WATER_FRAMES;
+    if(frames.length) return frames[(Math.floor(G.tick / 16) + x + y) % frames.length];
+  }
+  var v = TILEV[t];
+  if(v && v.length) return v[hashXY(x, y) % v.length];
+  return TILE[t];
+}
+function isWaterish(t){ return t === T_WATER || t === T_DOCK || t === T_BITTER; }
+function isRock(t){ return t === T_MOUNT || t === T_CLIFF; }
+function drawWorldEdges(m, x, y, t, sx, sy){
+  var up = y > 0 ? m[y-1][x] : t, dn = y < G.map.h-1 ? m[y+1][x] : t;
+  var lf = x > 0 ? m[y][x-1] : t, rt = x < G.map.w-1 ? m[y][x+1] : t;
+  if(isWaterish(t)){
+    if(!isWaterish(up)) ctx.drawImage(FOAM.n, sx, sy);
+    if(!isWaterish(dn)) ctx.drawImage(FOAM.s, sx, sy);
+    if(!isWaterish(lf)) ctx.drawImage(FOAM.w, sx, sy);
+    if(!isWaterish(rt)) ctx.drawImage(FOAM.e, sx, sy);
+    return;
+  }
+  if(isRock(t)){
+    if(!isRock(dn)){
+      ctx.drawImage(CLIFFFACE, sx, sy);
+      ctx.fillStyle = 'rgba(10,14,22,0.30)';
+      ctx.fillRect(sx, sy + TS, TS, 4);
+    }
+    if(!isRock(up) && (t === T_MOUNT)) ctx.drawImage(SNOWCAP, sx, sy);
+    return;
+  }
+  /* soft shade under anything that stands up off the ground */
+  if(t === T_FOREST || t === T_ORCHARD || t === T_RUINS || t === T_HILL){
+    if(dn !== t && !isRock(dn)){
+      ctx.fillStyle = 'rgba(12,20,14,0.20)';
+      ctx.fillRect(sx, sy + TS - 2, TS, 3);
+    }
+  }
+}
+function drawCloudShadows(camX, camY){
+  ctx.save();
+  ctx.globalAlpha = 0.11;
+  ctx.fillStyle = '#0b1626';
+  var span = G.map.w * TS + 520;
+  for(var i=0;i<5;i++){
+    var wx = ((G.tick * 0.22 + i * 331) % span) - 260;
+    var wy = 90 + i * 173 + Math.sin((G.tick / 260) + i) * 22;
+    var cx = wx - camX * 0.92, cy = (wy % (G.map.h * TS)) - camY * 0.92;
+    var rw = 58 + (i % 3) * 26, rh = 24 + (i % 2) * 12;
+    if(cx < -160 || cx > W + 160 || cy < -120 || cy > H + 120) continue;
+    ctx.beginPath(); ctx.ellipse(cx, cy, rw, rh, 0, 0, 6.3); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx + rw * 0.6, cy + 7, rw * 0.6, rh * 0.7, 0, 0, 6.3); ctx.fill();
+  }
+  ctx.restore();
+}
 function drawField(){
   var camX = G.px * TS + (G.mvx * TS * G.mvt) - W/2 + TS/2;
   var camY = G.py * TS + (G.mvy * TS * G.mvt) - H/2 + TS/2 + 8;
@@ -2480,14 +2781,38 @@ function drawField(){
   ctx.fillStyle = '#0d1017'; ctx.fillRect(0,0,W,H);
   var x0 = Math.floor(camX/TS), y0 = Math.floor(camY/TS);
   var x1 = Math.ceil((camX+W)/TS), y1 = Math.ceil((camY+H)/TS);
-  for(var y=y0;y<=y1;y++) for(var x=x0;x<=x1;x++){
+  var isWorld = G.map.kind === 'world', m = G.map.m, x, y;
+  var tall = [];
+  for(y=y0;y<=y1;y++) for(x=x0;x<=x1;x++){
     if(x<0||y<0||x>=G.map.w||y>=G.map.h) continue;
-    var t = G.map.m[y][x], img = TILE[t];
+    var t = m[y][x];
+    var sx = Math.round(x*TS-camX), sy = Math.round(y*TS-camY);
     if(t === T_ROOF || t === T_DOOR || t === T_INN || t === T_SHOP || t === T_TREE ||
-       t === T_FENCE || t === T_SIGN || t === T_WELL || t === T_CHEST){
-      ctx.drawImage(TILE[G.map.kind==='dungeon'?T_FLOOR:T_GRASS], Math.round(x*TS-camX), Math.round(y*TS-camY));
+       t === T_FENCE || t === T_SIGN || t === T_WELL || t === T_CHEST ||
+       t === T_LAMP || t === T_STATUE || t === T_FOUNTAIN || t === T_HEDGE ||
+       t === T_PLANTER || t === T_CRATE || t === T_BARREL || t === T_MARKET){
+      var base = G.map.kind === 'dungeon' ? TILE[T_FLOOR] : (TILEV[T_GRASS] ? TILEV[T_GRASS][hashXY(x,y) % TILEV[T_GRASS].length] : TILE[T_GRASS]);
+      if(base) ctx.drawImage(base, sx, sy);
     }
-    if(img) ctx.drawImage(img, Math.round(x*TS-camX), Math.round(y*TS-camY));
+    if(isWorld && (t === T_TOWN || t === T_CAVE || t === T_FIR)){
+      var under = (t === T_CAVE) ? T_HILL : T_GRASS;
+      var ub = TILEV[under] ? TILEV[under][hashXY(x,y) % TILEV[under].length] : TILE[under];
+      if(ub) ctx.drawImage(ub, sx, sy);
+      tall.push({t:t, sx:sx, sy:sy, y:y});
+      continue;
+    }
+    var img = isWorld ? worldTileImage(t, x, y) : (TILEV[t] ? TILEV[t][hashXY(x,y) % TILEV[t].length] : TILE[t]);
+    if(img) ctx.drawImage(img, sx, sy);
+    if(isWorld) drawWorldEdges(m, x, y, t, sx, sy);
+  }
+  if(isWorld){
+    tall.sort(function(a,b){ return a.y - b.y; });
+    for(var ti=0;ti<tall.length;ti++){
+      var o = tall[ti];
+      if(o.t === T_TOWN) ctx.drawImage(LANDMARK.town, o.sx - 8, o.sy - 16);
+      else if(o.t === T_CAVE) ctx.drawImage(LANDMARK.cave, o.sx - 4, o.sy - 8);
+      else ctx.drawImage(LANDMARK.fir, o.sx - 4, o.sy - 12);
+    }
   }
   /* npcs */
   G.map.npcs.forEach(function(n){
@@ -2523,7 +2848,16 @@ function drawField(){
     ctx.restore();
     oy -= 6;
   }
+  var leadGun = lead && gunKindOf(lead);
+  if(leadGun) drawBandanaTails(ox + 8 + (G.dir === 3 ? -1 : 1) * 2, oy + 5,
+                               1, G.tick, G.dir === 3 ? -1 : 1);
   ctx.drawImage(G.sprites[lead ? lead.id : 'gideon'], (G.dir*2+fr)*16, 0, 16, 16, ox, oy, 16, 16);
+  if(leadGun){
+    ctx.fillStyle = BANDANA.band; ctx.fillRect(ox + 4, oy + 4, 8, 2);
+    ctx.fillStyle = BANDANA.lit;  ctx.fillRect(ox + 4, oy + 4, 8, 1);
+    ctx.fillStyle = BANDANA.dark; ctx.fillRect(ox + 4, oy + 6, 8, 1);
+  }
+  if(G.map.kind === 'world') drawCloudShadows(camX, camY);
   if(G.flags.darkened && G.map.kind !== 'dungeon'){
     ctx.fillStyle = 'rgba(10,8,20,0.34)'; ctx.fillRect(0,0,W,H);
   }
@@ -2975,8 +3309,13 @@ function useSkill(src, key, target){
 }
 function basicAttack(src, tgt){
   var out = [nameOfC(src) + ' attacks.'];
+  var WEP_FX = {pistol:'muzzle', rifle:'muzzle', bow:'comet', crossbow:'comet',
+    sword:'slash', katana:'slash', axe:'slash', scythe:'slash', claw:'slash', whip:'slash',
+    spear:'strike', dagger:'strike', flail:'shock', staff:'burst', rod:'burst', knuckle:'punch'};
+  var wl = (!src.isE && src.gear && src.gear.wep && GEAR[src.gear.wep]) ? GEAR[src.gear.wep].look : null;
   var kind = src.isE ? enemyAttackFx(src)
-    : ({sword:'slash', fist:'punch', bow:'comet', gun:'muzzle', staff:'burst'}[src.def.wep] || 'strike');
+    : ((wl && WEP_FX[wl.kind]) ||
+       ({sword:'slash', fist:'punch', bow:'comet', gun:'muzzle', staff:'burst'}[src.def.wep] || 'strike'));
   if(PROJ_FX[kind]) fxThrow(src, tgt, kind, fxElementFor(src, 'none'));
   else fxAt(tgt, kind, fxElementFor(src, 'none'));
   damage(src, tgt, {type:'phys', pow:1});
@@ -3305,6 +3644,8 @@ function drawBattle(){
     var fmH = alive(h) ? formOf(h) : null;
     if(fmH) drawAura(hx + 21, hy + 22, fxPal(fmH.pal), 1 + h.form * 0.13, G.tick + i * 11);
     var art = battlerFor(h);
+    if(gunKindOf(h) && alive(h))
+      drawBandanaTails(hx + 12, hy + 10, 42/32, G.tick + i * 9, -1);
     ctx.drawImage(art, hx, hy, 42, 42);
     if(h.flash > 0){ h.flash--; ctx.globalAlpha = h.flash/16; ctx.globalCompositeOperation='lighter';
       ctx.drawImage(art, hx, hy, 42, 42); ctx.globalCompositeOperation='source-over'; }
@@ -4544,14 +4885,46 @@ function setupInput(){
     var dir = KEYMAP[ev.key];
     if(dir) held[dir] = false;
   });
+  /* nothing here is meant to be selected, dragged, magnified or long-pressed */
+  function killSelection(e){
+    if(e && e.cancelable) e.preventDefault();
+    return false;
+  }
+  function clearSelection(){
+    if(window.getSelection){
+      var sel = window.getSelection();
+      if(sel){
+        if(sel.removeAllRanges) sel.removeAllRanges();
+        else if(sel.empty) sel.empty();
+      }
+    }
+  }
+  ['contextmenu','selectstart','dragstart','gesturestart','dblclick'].forEach(function(evt){
+    document.addEventListener(evt, killSelection, {passive:false});
+  });
   function bindBtn(id, downFn, upFn){
     var el = document.getElementById(id);
     if(!el) return;
-    function down(e){ e.preventDefault(); el.classList.add('on'); downFn(); }
-    function up(e){ if(e) e.preventDefault(); el.classList.remove('on'); if(upFn) upFn(); }
+    if(el.setAttribute){ el.setAttribute('draggable','false'); el.setAttribute('unselectable','on'); }
+    el.onselectstart = killSelection;
+    el.oncontextmenu = killSelection;
+    el.ondragstart = killSelection;
+    function down(e){
+      if(e && e.cancelable) e.preventDefault();
+      if(e && e.stopPropagation) e.stopPropagation();
+      clearSelection();
+      el.classList.add('on');
+      downFn();
+    }
+    function up(e){
+      if(e && e.cancelable) e.preventDefault();
+      el.classList.remove('on');
+      if(upFn) upFn();
+    }
     el.addEventListener('touchstart', down, {passive:false});
     el.addEventListener('touchend', up, {passive:false});
     el.addEventListener('touchcancel', up, {passive:false});
+    el.addEventListener('touchmove', killSelection, {passive:false});
     el.addEventListener('mousedown', down);
     el.addEventListener('mouseup', up);
     el.addEventListener('mouseleave', up);
@@ -4633,7 +5006,7 @@ function init(){
   ctx.imageSmoothingEnabled = false;
   var tc0 = document.getElementById('text');
   if(tc0){ TX = tc0.getContext('2d'); txScale = 1; }
-  buildTiles(); buildAltTiles(); buildSprites(); buildBookBg(); buildWorld();
+  buildTiles(); buildAltTiles(); buildOverworldArt(); buildSprites(); buildBookBg(); buildWorld();
   setupInput();
   window.addEventListener('resize', resize);
   resize();
